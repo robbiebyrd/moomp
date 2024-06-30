@@ -1,0 +1,59 @@
+[tool.poetry]
+name = "moomp"
+version = "0.1.0"
+description = ""
+authors = ["Robbie Byrd <me@robbiebyrd.com>"]
+readme = "README.md"
+package-mode = false
+
+[tool.poetry.dependencies]
+python = "^3.12"
+mongoengine = "^0.28.2"
+pydantic = "^2.7.4"
+blinker = "^1.8.2"
+paho-mqtt = "^2.1.0"
+argparse = "^1.4.0"
+pytest-env = "^1.1.3"
+telnetlib3 = "^2.0.4"
+prettier = "^0.0.7"
+black = "^24.8.0"
+ansi-escapes = "^0.1.1"
+bcrypt = "^4.2.0"
+colored = "^2.2.4"
+pluralizer = "^1.2.0"
+
+[build-system]
+requires = ["poetry-core"]
+build-backend = "poetry.core.masonry.api"
+
+[tool.pytest_env]
+MONGODB_NAME = "moomp"
+
+[project]
+description = "MOOMP Multi-User Dungeon, Object Oriented w/ Mongo and Pyhton"
+authors = [
+    { name = "Robbie Byrd", email = "me@robbiebyrd.com" },
+]
+maintainers = [
+    { name = "Robbie Byrd", email = "me@robbiebyrd.com" },
+]
+readme = { file = "README.txt", content-type = "text/markdown" }
+license = { file = "LICENSE" }
+classifiers = [
+    "Development Status :: 3 - Alpha",
+    "Intended Audience :: Developers",
+    "Topic :: Software Development :: Build Tools",
+    "License :: OSI Approved :: The Unlicense (Unlicense)",
+    "Programming Language :: Python :: 3.11",
+    "Programming Language :: Python :: 3.12",
+    "Programming Language :: Python :: 3.13",
+    "Programming Language :: Python :: 3.14",
+    "Topic :: Communications :: BBS",
+    "Topic :: Communications :: Chat",
+    "Topic :: Games/Entertainment :: Multi-User Dungeons (MUD)",
+    "Topic :: Terminals :: Telnet",
+    "Environment :: Console",
+    "Natural Language :: English"
+]
+[project.urls]
+Repository = "https://github.com/robbiebyrd/moomp.git"
