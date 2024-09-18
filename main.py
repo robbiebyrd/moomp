@@ -1,11 +1,12 @@
 import argparse
 
 from entrypoints.telnet import TelnetServer
+from services.script import script
 from utils.clean import clean
 from utils.migrate import migrate
 
 parser = argparse.ArgumentParser(prog="MOOMP", description="A simple MOO-like server, written in Python using MongoDB.")
-parser.add_argument("command", choices=["dev", "start", "clean", "migrate", "telnet"])
+parser.add_argument("command", choices=["dev", "start", "clean", "migrate", "telnet", 'script'])
 
 
 def main():
@@ -25,6 +26,8 @@ def main():
             migrate()
         case "telnet":
             TelnetServer.serve()
+        case "script":
+            script()
         case _:
             return
 
