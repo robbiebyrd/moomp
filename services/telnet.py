@@ -198,11 +198,14 @@ class TelnetService:
                 line += str(char_input)
 
     async def login(self):
+        autologin = ['wizard@yourhost.com', 'wizard']
         while True:  # This should be a count. We should error out after x number of login tries
-            # email = await self.input_line('Email address: ', on_new_line=False)
-            # password = await self.input_line('Password: ', '*', on_new_line=False)
-            # account = AuthNService.authorize(email, password)
-            account = AuthNService.authorize('wizard@yourhost.com', 'wizard')
+            if autologin:
+                account = AuthNService.authorize(*autologin)
+            else:
+                email = await self.input_line('Email address: ', on_new_line=False)
+                password = await self.input_line('Password: ', '*', on_new_line=False)
+                account = AuthNService.authorize(email, password)
 
             if account is None:
                 self.write_line(f"Your email address and password were not accepted. Please try again." f" {self.nl}")

@@ -6,14 +6,14 @@ from colored.library import Library
 
 
 class TextColors:
-    colors_by_color_group = json.load(open(os.path.dirname(os.path.realpath(__file__)) + '/text.json', )).get('colors')
-    colors_by_brightness = json.load(open(os.path.dirname(os.path.realpath(__file__)) + '/text.json',
-                                          )).get('brightness')
+    colors = json.load(open(os.path.dirname(os.path.realpath(__file__)) + '/text.json'))
+
+    colors_by_brightness = colors.get('brightness')
 
     color_styles = {
         "error": ["#ffafd7", "#5f0000"],
         "input": ["#b2b2b2"],
-        "inputActive": ["#4d4d4d", "#b2b2b2"],
+        "inputActive": ["#000000", "#b2b2b2"],
         "chat": ["afffff"],
     }
 

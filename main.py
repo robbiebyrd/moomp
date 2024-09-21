@@ -1,7 +1,6 @@
 import argparse
 
 from entrypoints.telnet import TelnetServer
-from services.script import script
 from utils.clean import clean
 from utils.migrate import migrate
 
@@ -26,8 +25,6 @@ def main():
             migrate()
         case "telnet":
             TelnetServer.serve()
-        case "script":
-            script()
         case _:
             return
 

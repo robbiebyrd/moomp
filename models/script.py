@@ -8,37 +8,32 @@ from mongoengine import (
     DictField,
     SequenceField,
     ListField,
-    DateTimeField, EmbeddedDocument, EnumField, EmbeddedDocumentField,
+    DateTimeField, EmbeddedDocument, EnumField, EmbeddedDocumentField, GenericReferenceField,
 )
 from pydantic import BaseModel
 
-import models
+from utils.types import SCRIPT_OBJECT_TYPES
 
-ScriptTypes = Enum('ScriptTypes', models.__all__)
+ScriptTypes = Enum('ScriptTypes', [x._class_name for x in SCRIPT_OBJECT_TYPES])
 
 
 class ScriptType(EmbeddedDocument):
-    type: EnumField(ScriptTypes)
-    script: StringField()
+    type = EnumField(ScriptTypes)
+    script = StringField()
 
 
 class Script(Document):
     meta = {"collection": "scripts"}
+    cId = SequenceField(db_field="c")
 
-    cId = SequenceField()
+    name = StringField(unique_with='owner')
 
     owner = ReferenceField("Character", required=True, db_field="_ownerId")
     created_at = DateTimeField(required=True, default=datetime.now)
     updated_at = DateTimeField(required=True, default=datetime.now)
 
     scripts = ListField(EmbeddedDocumentField(ScriptType))
-
-    accounts = ListField(ReferenceField("Account"), db_field="_accountIds")
-    characters = ListField(ReferenceField("Character"), db_field="_characterIds")
-    objects = ListField(ReferenceField("Object"), db_field="_objectIds")
-    portals = ListField(ReferenceField("Portal"), db_field="_portalIds")
-    rooms = ListField(ReferenceField("Room"), db_field="_roomIds")
-    topics = ListField(StringField())
+    attached = ListField(GenericReferenceField())
 
     properties = DictField()
 

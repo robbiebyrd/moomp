@@ -13,8 +13,7 @@ common_properties = {"locked": bool}
 
 class Object(Document):
     meta = {"collection": "objects"}
-
-    cId = SequenceField()
+    cId = SequenceField(db_field="c")
 
     parent = ReferenceField("self", db_field="_parentId")
     owner = ReferenceField("Character", required=True, db_field="_ownerId")
