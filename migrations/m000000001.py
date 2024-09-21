@@ -6,6 +6,7 @@ from models.character import Character
 from models.object import Object
 from models.portal import Portal
 from models.room import Room
+from models.script import Script, ScriptType, ScriptTypes
 from services.authn import AuthNService
 
 
@@ -148,3 +149,15 @@ def run():
     the_prog.save()
     the_builder.save()
     the_architect.save()
+
+    Script.objects.create(
+        owner=the_wiz,
+        name='test_script',
+        scripts=[ScriptType(
+            type=ScriptTypes.Character,
+            script='''function(character, inventory, room, nearby, account, exits)
+            return character, inventory, room, nearby, account, exits
+        end'''
+        )],
+        attached=[the_wiz, the_prog, the_builder, the_architect]
+    )
