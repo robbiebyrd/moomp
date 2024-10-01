@@ -2,7 +2,6 @@ import os
 from datetime import datetime
 from typing import List
 
-import paho.mqtt.client as mqttc
 from ansi_escapes import ansiEscapes as ae
 from colored import Style as Sty
 from mongoengine import Q
@@ -12,8 +11,8 @@ from commands import base
 from models.character import Character
 from models.object import Object
 from services.authn import AuthNService
+from services.mqtt import MQTTService
 from services.session import TextSession
-from services.speech import on_message
 from templates.room.text import RoomText
 from templates.text import BaseTextTemplate as Btt, TextGraphics, TextColors
 from utils.colors import ct, hex_color_complimentary
@@ -330,11 +329,10 @@ class TelnetService:
             self.session.character = await self.login()
             line = ""
 
-            mqtt_client = mqttc.Client(mqttc.CallbackAPIVersion.VERSION2)
-            mqtt_client.on_message = on_message
-            mqtt_client.user_data_set(self.session)
-            mqtt_client.connect(os.environ.get("MQTT_HOST"), int(os.environ.get("MQTT_PORT")), 60)
-
+            mqtt_client = MQTTService(
+                os.environ.get("MQTT_HOST"),
+                os.environ.get("MQTT_PORT"),
+                self.session).client()
             self.write_line(RoomText.get(self.session.character.room, self.session.character))
             mqtt_client.loop_start()
 
