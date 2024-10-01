@@ -23,7 +23,7 @@ def notify(document_type, document, document_operation, operator=None):
     # Make a shallow copy of the document object for filtering.
     doc = json.loads(document.to_json())
 
-    private_fields = {"Character": ["password"]}
+    private_fields = {"Account": ["password"]}
 
     for field in private_fields.get(document_type, []):
         if hasattr(doc, field):

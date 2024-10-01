@@ -10,8 +10,13 @@ from utils.db import connect_db
 connect_db()
 
 
-def on_message(mqtt, session: TextSession, msg):
-    if msg.topic.startswith("/Speech/"):
+class SpeechConsumer:
+
+    def __init__(self):
+        self._connection = connect_db()
+
+    @classmethod
+    def on_message(cls, mqtt, session: TextSession, msg):
         [_, room_id, speaker_id] = list(unpack_topic("/Speech/+/Room/+/Speaker/+", msg.topic))
         if room_id and speaker_id:
             speaker = Character.objects(id=speaker_id).first()
@@ -25,3 +30,7 @@ def on_message(mqtt, session: TextSession, msg):
                     else f"{speaker.name} {prefix[1]} {msg}{Btt.NEWLINE}"
                 ),
             )
+
+    @classmethod
+    def validate_topic(cls, topic: str) -> bool:
+        return True if topic.startswith('/Speech/') else False

@@ -40,6 +40,7 @@ class SayCommand(Command):
 
     @classmethod
     async def telnet(cls, reader, writer, mqtt_client, command: str, session: "TextSession"):
+        command = command.strip()
         prefix = cls.get_command_prefix(command)
         if not command.startswith("'") or not command.startswith('"'):
             command = cls.get_arguments(command)

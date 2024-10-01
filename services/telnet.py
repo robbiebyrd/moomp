@@ -2,7 +2,6 @@ import os
 from datetime import datetime
 from typing import List
 
-import paho.mqtt.client as mqttc
 from ansi_escapes import ansiEscapes as ae
 from colored import Style as Sty
 from mongoengine import Q
@@ -12,8 +11,8 @@ from commands import base
 from models.character import Character
 from models.object import Object
 from services.authn import AuthNService
+from services.mqtt import MQTTService
 from services.session import TextSession
-from services.speech import on_message
 from templates.room.text import RoomText
 from templates.text import BaseTextTemplate as Btt, TextGraphics, TextColors
 from utils.colors import ct, hex_color_complimentary
@@ -198,11 +197,14 @@ class TelnetService:
                 line += str(char_input)
 
     async def login(self):
+        autologin = ['wizard@yourhost.com', 'wizard']
         while True:  # This should be a count. We should error out after x number of login tries
-            # email = await self.input_line('Email address: ', on_new_line=False)
-            # password = await self.input_line('Password: ', '*', on_new_line=False)
-            # account = AuthNService.authorize(email, password)
-            account = AuthNService.authorize('wizard@yourhost.com', 'wizard')
+            if autologin:
+                account = AuthNService.authorize(*autologin)
+            else:
+                email = await self.input_line('Email address: ', on_new_line=False)
+                password = await self.input_line('Password: ', '*', on_new_line=False)
+                account = AuthNService.authorize(email, password)
 
             if account is None:
                 self.write_line(f"Your email address and password were not accepted. Please try again." f" {self.nl}")
@@ -327,11 +329,10 @@ class TelnetService:
             self.session.character = await self.login()
             line = ""
 
-            mqtt_client = mqttc.Client(mqttc.CallbackAPIVersion.VERSION2)
-            mqtt_client.on_message = on_message
-            mqtt_client.user_data_set(self.session)
-            mqtt_client.connect(os.environ.get("MQTT_HOST"), int(os.environ.get("MQTT_PORT")), 60)
-
+            mqtt_client = MQTTService(
+                os.environ.get("MQTT_HOST"),
+                os.environ.get("MQTT_PORT"),
+                self.session).client()
             self.write_line(RoomText.get(self.session.character.room, self.session.character))
             mqtt_client.loop_start()
 

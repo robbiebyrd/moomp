@@ -11,8 +11,7 @@ from pydantic import BaseModel
 
 class Room(Document):
     meta = {"collection": "rooms"}
-
-    cId = SequenceField()
+    cId = SequenceField(db_field="c")
 
     owner = ReferenceField("Character", required=True, db_field="_ownerId")
     parent = ReferenceField("self", db_field="_parentId")
