@@ -9,28 +9,29 @@ from mongoengine import (
 from pydantic import BaseModel
 
 from models.account import Account
+from models.object import Object
 from models.room import Room
 
 
 class Character(Document):
     meta = {"collection": "characters"}
-
-    cId = SequenceField()
-    account = ReferenceField(Account, db_field="_accountId")
-
-    # The "location" of the current user.
-    room = ReferenceField(Room, db_field="_roomId")
+    cId = SequenceField(db_field="c")
 
     name = StringField(required=True, regex="^[a-zA-Z0-9]{1,100}$")
     display = StringField(required=True)
+    description = StringField()
 
     online = BooleanField(default=False)
+    visible = BooleanField()
 
-    description = StringField()
+    account = ReferenceField(Account, db_field="_accountId")
+    room = ReferenceField(Room, db_field="_roomId")
 
     properties = DictField()
 
-    visible = BooleanField()
+    @property
+    def inventory(self):
+        return Object.objects(holder=self)
 
 
 class CharacterCreateDTO(BaseModel):

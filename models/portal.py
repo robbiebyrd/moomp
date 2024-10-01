@@ -22,8 +22,7 @@ class PortalDirection(Enum):
 
 class Portal(Document):
     meta = {"collection": "portals"}
-
-    cId = SequenceField()
+    cId = SequenceField(db_field="c")
 
     owner = ReferenceField(Character, required=True, db_field="_ownerId")
 

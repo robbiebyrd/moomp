@@ -1,12 +1,15 @@
 from mongoengine import (
     Document,
     StringField,
-    EmailField,
+    EmailField, SequenceField,
 )
 from pydantic import BaseModel
 
 
 class Account(Document):
+    meta = {"collection": "accounts"}
+    cId = SequenceField(db_field="c")
+
     email = EmailField(required=True)
     password = StringField(required=True)
 

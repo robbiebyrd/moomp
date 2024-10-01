@@ -1,12 +1,24 @@
-import importlib
 from abc import ABC, abstractmethod
 from typing import List
 
 import commands
+from utils.system import import_modules
 
 
 class Command(ABC):
     command_prefixes: List[str]
+
+    errors = {
+        "not_enough_arguments": "You must give the command some arguments.",
+        "unknown_command": "That is not a valid command.",
+        "not_a_character": "You must be in a character to use that command.",
+        "not_in_room": "You must be in the room to use that command.",
+        "not_enough_permissions": "You do not have the permissions to use that command.",
+        "not_a_number": "You must give a number.",
+        "not_a_valid_object": "That is not a valid object.",
+        "not_a_valid_room": "That is not a valid room.",
+        "not_a_valid_character": "That is not a valid character.",
+    }
 
     @classmethod
     @abstractmethod
@@ -51,9 +63,7 @@ class Command(ABC):
 
 
 def get_command_modules() -> List[Command]:
-    command_modules = []
-    for module_path in commands.__all__:
-        module = getattr(importlib.import_module("commands." + module_path), module_path.title() + "Command")
-        if hasattr(module, "telnet"):
-            command_modules.append(module)
-    return command_modules
+    return import_modules(commands.__all__,
+                          'telnet',
+                          "commands.",
+                          "Command")
