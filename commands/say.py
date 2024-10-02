@@ -7,7 +7,6 @@ from pluralizer import Pluralizer
 from commands.base import Command
 from models.speech import Speech
 from services.portal import PortalService
-from services.telnet import TelnetService
 from services.telnet import TextSession
 
 
@@ -76,7 +75,7 @@ class SayCommand(Command):
                 await cls.notify(speech, session)
             case _:
                 if len(command) == 0:
-                    TelnetService.write_line(writer, "You mumble incoherently.")
+                    writer.write("You mumble incoherently.")
                 else:
                     speech = Speech.objects.create(
                         speaker=session.character,

@@ -1,10 +1,12 @@
+from datetime import datetime
+
 from mongoengine import (
     Document,
     ReferenceField,
     StringField,
     BooleanField,
     DictField,
-    SequenceField,
+    SequenceField, DateTimeField,
 )
 from pydantic import BaseModel
 
@@ -16,6 +18,7 @@ from models.room import Room
 class Character(Document):
     meta = {"collection": "characters"}
     cId = SequenceField(db_field="c")
+    created_at = DateTimeField(required=True, default=datetime.now)
 
     name = StringField(required=True, regex="^[a-zA-Z0-9]{1,100}$")
     display = StringField(required=True)

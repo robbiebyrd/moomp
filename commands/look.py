@@ -20,12 +20,12 @@ class LookCommand(Command):
         else:
             if target.lower() == "me":
                 # Describe the room the current character
-                writer.write(CharacterText.get(session.character) + Btt.NEWLINE)
+                writer.write(CharacterText.get(session.character))
                 return
 
             if target.lower() in ["here", "around"]:
                 # Describe the room the character is currently in
-                writer.write(RoomText.get(session.character.room, session.character) + Btt.NEWLINE)
+                writer.write(RoomText.get(session.character.room, session.character))
                 return
 
             if target.lower() in ["in", "inside", "into"]:

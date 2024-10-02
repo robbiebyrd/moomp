@@ -3,6 +3,7 @@ from operator import is_not
 
 from models.account import Account
 from models.character import Character
+from models.instance import Instance
 from models.object import Object
 from models.portal import Portal
 from models.room import Room
@@ -15,25 +16,40 @@ def description():
 
 
 def run():
+    instance_data = {
+        'name': 'Hereville',
+        'description': 'Hereville: A village that is here',
+        'properties': {
+            "msg_connect": 'You are connected to ${instance.name}.'
+        }
+    }
+
+    if not Instance.objects(name=instance_data.get("name")):
+        Instance(**instance_data).save()
+
+    instance = Instance.objects(name=instance_data.get("name")).first()
+
     account_array = [
         {
             "email": "wizard@yourhost.com",
             "password": AuthNService.encrypt_password("wizard"),
+            "instance": instance
         },
         {
             "email": "programmer@yourhost.com",
             "password": AuthNService.encrypt_password("programmer"),
+            "instance": instance
         },
     ]
 
     account_instances = list(
         filter(
             partial(is_not, None),
-            [Account(**data) if not Account.objects(email=data.get("email")) else None for data in account_array],
+            [None if Account.objects(email=data.get("email")) else Account(**data) for data in account_array],
         )
     )
 
-    if len(account_instances) > 0:
+    if account_instances:
         Account.objects.insert(account_instances, load_bulk=False)
 
     character_array = [
@@ -150,7 +166,7 @@ def run():
     the_builder.save()
     the_architect.save()
 
-    Script.objects.create(
+    Script.objects.update_one(
         owner=the_wiz,
         name='test_script',
         scripts=[ScriptType(

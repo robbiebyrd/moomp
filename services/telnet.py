@@ -1,14 +1,18 @@
+import contextlib
 import os
 from datetime import datetime
 from typing import List
 
+from Cheetah.Template import Template
 from ansi_escapes import ansiEscapes as ae
+from colored import Fore as Fg
 from colored import Style as Sty
 from mongoengine import Q
 from telnetlib3 import TelnetReader, TelnetWriter
 
 from commands import base
 from models.character import Character
+from models.instance import Instance
 from models.object import Object
 from services.authn import AuthNService
 from services.mqtt import MQTTService
@@ -30,12 +34,13 @@ class TelnetService:
     reader: TelnetReader | None = None
     session: TextSession | None = None
 
-    def __init__(self, reader, writer, session=None) -> None:
+    def __init__(self, instance_name, reader, writer, session=None) -> None:
         if reader is None or writer is None:
             return
         self.session = session if session is not None else TextSession()
         self.session.reader = reader
         self.session.writer = writer
+        self.session.instance = Instance.objects(name=instance_name).first()
 
     def write_line(self, message, add_newline: bool = True):
         if not isinstance(message, list):
@@ -46,26 +51,17 @@ class TelnetService:
     @staticmethod
     def parse_input_type(line: str):
         # Try to convert the string to a float
-        try:
+        with contextlib.suppress(ValueError):
             return int(line)
-        except ValueError:
-            pass
-
         # If that doesn't work, try to convert the string to an integer
         if "." in line:
-            try:
+            with contextlib.suppress(ValueError):
                 return float(line)
-            except ValueError:
-                pass
-
         # Finally, try to convert the value to a boolean.
-        if line.lower() in ["true", "yes", "y"]:
+        if line.lower() in {"true", "yes", "y"}:
             return True
 
-        if line.lower() in ["false", "no", "n"]:
-            return False
-
-        return str(line)
+        return False if line.lower() in {"false", "no", "n"} else line
 
     async def select(
             self,
@@ -94,7 +90,9 @@ class TelnetService:
             fg = TextGraphics.get_colors_array(fg, len(ops))
 
             if bg is None:
-                bg = [hex_color_complimentary(fg[len(fg) - 1 - i]) for i in range(len(fg))]
+                bg = [
+                    hex_color_complimentary(fg[len(fg) - 1 - i]) for i in range(len(fg))
+                ]
 
             self.write_line(
                 [
@@ -132,15 +130,20 @@ class TelnetService:
                 create_list(colors, bg_colors, options, h_padding)
                 escape_key_seen, ansi_escape_header_key_seen = False, False
                 continue
-            if ord(char_input) in [127]:
+            if ord(char_input) in {127}:
                 line = line[:-1]
                 self.session.writer.write(ae.cursorBackward(1) + ae.eraseEndLine)
                 continue
-            if ord(char_input) in [10, 13]:
+            if ord(char_input) in {10, 13}:
                 if required and len(line) == 0:
                     if selected is not None:
                         return selected + 1
-                    self.write_line(ct(f"This value is required", *TextColors.color_styles.get("error")))
+                    self.write_line(
+                        ct(
+                            "This value is required",
+                            *TextColors.color_styles.get("error")
+                        )
+                    )
                     create_list(colors, bg_colors, options, h_padding)
                     continue
                 self.session.writer.write(self.nl)
@@ -163,7 +166,7 @@ class TelnetService:
             case "B":  # Down
                 if selected is None:
                     selected = 0
-                elif not selected >= (length - 1):
+                elif selected < length - 1:
                     selected += 1
         return selected
 
@@ -183,31 +186,38 @@ class TelnetService:
 
             if len(char_input) == 0:
                 continue
-            elif ord(char_input) in [127]:
+            elif ord(char_input) in {127}:
                 line = line[:-1]
                 self.session.writer.write(ae.cursorBackward(1) + ae.eraseEndLine)
-            elif ord(char_input) in [10, 13]:
+            elif ord(char_input) in {10, 13}:
                 if required and len(line) == 0:
-                    self.session.writer.write("This value is required." + self.nl)
+                    self.session.writer.write(f"This value is required.{self.nl}")
                     continue
                 self.session.writer.write(self.nl)
                 return self.parse_input_type(line)
             else:
-                self.session.writer.echo(mask_character if mask_character is not None else char_input)
+                self.session.writer.echo(
+                    mask_character if mask_character is not None else char_input
+                )
                 line += str(char_input)
 
     async def login(self):
-        autologin = ['wizard@yourhost.com', 'wizard']
-        while True:  # This should be a count. We should error out after x number of login tries
+        autologin = ["wizard@yourhost.com", "wizard"]
+        while (
+                True
+        ):  # This should be a count. We should error out after x number of login tries
             if autologin:
                 account = AuthNService.authorize(*autologin)
             else:
-                email = await self.input_line('Email address: ', on_new_line=False)
-                password = await self.input_line('Password: ', '*', on_new_line=False)
+                email = await self.input_line("Email address: ", on_new_line=False)
+                password = await self.input_line("Password: ", "*", on_new_line=False)
                 account = AuthNService.authorize(email, password)
 
             if account is None:
-                self.write_line(f"Your email address and password were not accepted. Please try again." f" {self.nl}")
+                self.write_line(
+                    f"Your email address and password were not accepted. Please try again."
+                    f" {self.nl}"
+                )
             else:
                 break
 
@@ -215,8 +225,7 @@ class TelnetService:
             characters = AuthNService.characters(account)
 
             character_input = await self.select(
-                [f"{x.name}" for i, x in enumerate(characters)],
-                "Select a Character: ",
+                [f"{x.name}" for x in characters], "Select a Character: "
             )
 
             character_input = self.parse_input_type(character_input)
@@ -234,7 +243,9 @@ class TelnetService:
         character.online = True
         character.save()
 
-        self.session.writer.write(f"You are logged in as {character.display} ({character.name}).{self.nl}")
+        self.session.writer.write(
+            f"You are logged in as {character.display} ({character.name}).{self.nl}"
+        )
         return character
 
     def logout(self, mqtt_client):
@@ -280,12 +291,17 @@ class TelnetService:
 
         # If a character is in a room, then it subscribes to that room's events
         if self.session.character.room:
-            subscriptions.append(f"/Room/{self.session.character.room.id}/#")
-            subscriptions.append(f"/Speech/+/Room/{self.session.character.room.id}/#")
+            subscriptions.extend((
+                f"/Room/{self.session.character.room.id}/#",
+                f"/Speech/+/Room/{self.session.character.room.id}/#",
+            ))
 
         # If a user is holding any objects, then receive event updates on those
-        for obj in Object.objects(Q(holder=self.session.character.id) | Q(room=self.session.character.room.id)):
-            subscriptions.append(f"/Object/{obj.id}/#")
+        subscriptions.extend(
+            f"/Object/{obj.id}/#"
+            for obj in Object.objects(
+                Q(holder=self.session.character.id) | Q(room=self.session.character.room.id)
+            ))
 
         return subscriptions
 
@@ -307,14 +323,15 @@ class TelnetService:
 
     async def refresh_subscriptions(self, mqtt_client):
         topics_to_subscribe = self.current_subscriptions()
-        topics_to_unsubscribe = []
+        self.session.message_topics = list(
+            set(self.session.message_topics + topics_to_subscribe)
+        )
 
-        self.session.message_topics = list(set(self.session.message_topics + topics_to_subscribe))
-
-        for subscription in self.session.message_topics:
-            if subscription not in topics_to_subscribe:
-                topics_to_unsubscribe.append(subscription)
-
+        topics_to_unsubscribe = [
+            subscription
+            for subscription in self.session.message_topics
+            if subscription not in topics_to_subscribe
+        ]
         for topic_to_unsubscribe in topics_to_unsubscribe:
             self.session.message_topics.remove(topic_to_unsubscribe)
 
@@ -325,15 +342,21 @@ class TelnetService:
         try:
             colors = self.session.colors
 
+            if msg := self.session.instance.properties['msg_connect']:
+                t = Template(msg, searchList={"instance": self.session.instance, "fg": Fg})
+                self.write_line(str(t))
+
             # Attempt to log in
             self.session.character = await self.login()
             line = ""
 
             mqtt_client = MQTTService(
-                os.environ.get("MQTT_HOST"),
-                os.environ.get("MQTT_PORT"),
-                self.session).client()
-            self.write_line(RoomText.get(self.session.character.room, self.session.character))
+                os.environ.get("MQTT_HOST"), os.environ.get("MQTT_PORT"), self.session
+            ).client()
+            self.write_line(
+                RoomText.get(self.session.character.room, self.session.character),
+                add_newline=False
+            )
             mqtt_client.loop_start()
 
             while True:
@@ -350,22 +373,32 @@ class TelnetService:
                     break
 
                 # Set the window's session size.
-                self.session.size = [self.session.writer.get_extra_info("cols"),
-                                     self.session.writer.get_extra_info("rows")]
+                self.session.size = [
+                    self.session.writer.get_extra_info("cols"),
+                    self.session.writer.get_extra_info("rows"),
+                ]
 
                 # Match against our control characters
                 match ord(char_input):
-                    case 27:
-                        # Escape
+                    case 27:  # Escape
+                        # Reload the character and show the Room text again
                         self.session.character.reload()
-                        self.write_line(RoomText.get(self.session.character.room, self.session.character))
-                    case 8 | 127:
-                        # Backspace/Delete
+                        self.write_line(
+                            RoomText.get(
+                                self.session.character.room, self.session.character
+                            )
+                        )
+                    case 8 | 127:  # Backspace/Delete
+                        # Remove the last entered character from the display and line buffer
                         line = line[:-1]
-                        self.write_line(ae.cursorBackward(1) + ae.eraseEndLine, add_newline=False)
-                    case 11:
-                        # Vertical Tab - Show session history
-                        self.write_line("\r\n".join(self.session.input_history) + "\r\n")
+                        self.write_line(
+                            ae.cursorBackward(1) + ae.eraseEndLine, add_newline=False
+                        )
+                    case 11:  # Vertical Tab
+                        # Show session history
+                        self.write_line(
+                            "\r\n".join(self.session.input_history) + "\r\n"
+                        )
                     case 10 | 13:  # Enter
                         # Pressing Enter triggers the processing of the line
                         # Reload the character document to update any changes that have happened.
@@ -376,37 +409,52 @@ class TelnetService:
 
                         # Clear the line and reinsert with the line buffer to fix any input issues
                         self.write_line(
-                            "".join([ae.eraseLine, ae.cursorTo(0), ct(line, *colors.get("input")), Sty.reset]),
+                            "".join(
+                                [
+                                    ae.eraseLine,
+                                    ae.cursorTo(0),
+                                    ct(line, *colors.get("input")),
+                                    Sty.reset,
+                                ]
+                            ),
                         )
 
                         # If a valid command prefix isn't found, but an exit has been referenced,
                         # modify the line to include the 'move' command to the line.
-                        line = self.is_an_exit(line, self.session)
+                        line = (
+                            f"@move {line}"
+                            if self.command_is_an_exit(line, self.session)
+                            else line
+                        )
 
                         # Look over every command module and attempt to see if the command prefix matches our input.
                         if hasattr(cmd_mod := self.commands(line), "telnet"):
-                            await cmd_mod.telnet(self.session.reader, self.session.writer, mqtt_client, line,
-                                                 self.session)
+                            await cmd_mod.telnet(
+                                self.session.reader,
+                                self.session.writer,
+                                mqtt_client,
+                                line,
+                                self.session,
+                            )
                         else:
                             self.write_line("I'm sorry, I didn't understand that.")
 
                         # Clear the line and we start all over again
                         line = ""
-                    case _:
+                    case _:  # Any other character
                         char = str(char_input)
-                        # Any other character schar_inputhould be added to the line buffer
+                        # Any other characters input be added to the line buffer
                         self.session.writer.echo(ct(char, *colors.get("inputActive")))
                         line += char
         finally:
             pass
 
     @classmethod
-    def is_an_exit(cls, line, session):
-        return (
-            f"move {line}"
-            if not cls.commands(line)
-               and line.strip().lower() in RoomText.get_exit_aliases(session.character.room, True, True)
-            else line
+    def command_is_an_exit(cls, line, session):
+        return not cls.commands(
+            line
+        ) and line.strip().lower() in RoomText.get_exit_aliases(
+            session.character.room, True, True
         )
 
     @staticmethod

@@ -3,14 +3,16 @@ from datetime import datetime
 from telnetlib3 import TelnetWriterUnicode, TelnetReaderUnicode
 
 from models.character import Character
+from models.instance import Instance
 from templates.colors.text import TextColors
 from templates.text import BaseTextTemplate as Btt
 
 
 class Session:
     character: Character
-    message_topics: [str] = []
+    instance: Instance
     created: datetime = datetime.now()
+    message_topics: [str] = []
 
 
 class TextSession(Session):

@@ -1,17 +1,29 @@
+from datetime import datetime
+
 from mongoengine import (
     Document,
+    ReferenceField,
     StringField,
-    EmailField, SequenceField,
+    SequenceField,
+    DateTimeField,
 )
+from mongoengine import (
+    EmailField, )
 from pydantic import BaseModel
+
+from models.instance import Instance
 
 
 class Account(Document):
     meta = {"collection": "accounts"}
     cId = SequenceField(db_field="c")
 
+    created_at = DateTimeField(required=True, default=datetime.now)
+
     email = EmailField(required=True)
     password = StringField(required=True)
+
+    instance = ReferenceField(Instance, required=True, db_field="_instanceId")
 
 
 class AccountCreateDTO(BaseModel):

@@ -1,3 +1,4 @@
+from datetime import datetime
 from enum import Enum
 
 from mongoengine import (
@@ -7,7 +8,7 @@ from mongoengine import (
     ListField,
     BooleanField,
     DictField,
-    SequenceField,
+    SequenceField, DateTimeField,
 )
 from pydantic import BaseModel
 
@@ -23,6 +24,7 @@ class PortalDirection(Enum):
 class Portal(Document):
     meta = {"collection": "portals"}
     cId = SequenceField(db_field="c")
+    created_at = DateTimeField(required=True, default=datetime.now)
 
     owner = ReferenceField(Character, required=True, db_field="_ownerId")
 
