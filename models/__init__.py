@@ -5,5 +5,6 @@ __all__ = [
     "object",
     "portal",
     "room",
+    "script",
     "speech"
 ]

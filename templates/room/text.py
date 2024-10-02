@@ -58,6 +58,6 @@ class RoomText:
                 exits_test,
                 objects_text,
                 characters_text,
-                Btt.LINE_RULE,
+                Btt.LINE_RULE_NEWLINE,
             ]
         )

@@ -19,7 +19,7 @@ class CharacterText:
 
     @classmethod
     def get(cls, character: Character):
-        header = f"{character.name}{Btt.NEWLINE}"
+        header = f"You are: {character.name}{Btt.NEWLINE}"
         header += (character.description + Btt.NEWLINE) if character.description else ""
         inventory_text = f"Inventory: {", ".join([x.name for x in Object.objects(holder=character)])}{Btt.NEWLINE}"
         where = f"In Room: {character.room.name}{Btt.NEWLINE}"
@@ -30,6 +30,6 @@ class CharacterText:
                 header,
                 where,
                 inventory_text,
-                Btt.LINE_RULE,
+                Btt.LINE_RULE_NEWLINE,
             ]
         )
