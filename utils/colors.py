@@ -1,6 +1,14 @@
+import math
 from enum import StrEnum
 
 from colored import Fore as Fg, Back as Bg, Style as Sty, stylize
+
+
+def find_closest(color: str, colors: list[str]) -> str:
+    input_color = tuple(int(color.lstrip('#')[i:i + 2], 16) for i in (0, 2, 4))
+    distances = [math.sqrt(sum((int(c.lstrip('#')[i:i + 2], 16) - a) ** 2 for i, a in enumerate(input_color))) for c in
+                 colors]
+    return colors[distances.index(min(distances))]
 
 
 def hex_color_inverse(hex_color: str):
@@ -15,9 +23,7 @@ def hex_color_complimentary(hex_color: str):
 
 
 def hex_string_cleaner(hex_color: str):
-    if hex_color.startswith("#"):
-        return hex_color[1:]
-    return hex_color
+    return hex_color[1:] if hex_color.startswith("#") else hex_color
 
 
 def hex_color_to_rgb(hex_color: str):

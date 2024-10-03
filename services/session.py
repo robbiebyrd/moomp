@@ -4,8 +4,8 @@ from telnetlib3 import TelnetWriterUnicode, TelnetReaderUnicode
 
 from models.character import Character
 from models.instance import Instance
-from templates.colors.text import TextColors
-from templates.text import BaseTextTemplate as Btt
+from templates.utils.text.color import TextColors
+from templates.utils.text.graphics import BaseTextTemplate as Btt
 
 
 class Session:
@@ -18,6 +18,6 @@ class Session:
 class TextSession(Session):
     input_history: list[(str, datetime)] = []
     size: [int, int] = [Btt.ROWS, Btt.COLUMNS]
-    colors: dict[str, list[str]] = TextColors.color_styles
+    colors: dict[str, list[str]] = TextColors().default_theme
     reader: TelnetReaderUnicode = None
     writer: TelnetWriterUnicode = None

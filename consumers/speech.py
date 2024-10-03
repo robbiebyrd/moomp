@@ -3,7 +3,7 @@ import json
 from middleware.updater import unpack_topic
 from models.character import Character
 from services.session import TextSession
-from templates.text import BaseTextTemplate as Btt
+from templates.utils.text.graphics import BaseTextTemplate as Btt
 from utils.colors import ct
 from utils.db import connect_db
 

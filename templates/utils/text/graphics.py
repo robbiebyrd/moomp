@@ -1,9 +1,11 @@
+import json
+import os
 from math import ceil
 
 from colored import Style as Sty
 from colored import fore
 
-from templates.colors.text import TextColors
+from templates.utils.text.color import TextColors
 
 
 class BaseTextTemplate:
@@ -15,21 +17,18 @@ class BaseTextTemplate:
 
 
 class TextGraphics(BaseTextTemplate):
-    # left_top, right_top, left_bottom, right_bottom, horizontal, vertical,
-    # top t, right t, left t, bottom t, block, underline
-    GRAPHICS_BOX_STANDARD = ["┌", "┐", "└", "┘", "─", "│", "┬", "┤", "├", "┴", "█", "▁"]
-    GRAPHICS_BOX_ROUNDED = ["╭", "╮", "╰", "╯", "─", "│", "┬", "┤", "├", "┴", "█", "▁"]
-    GRAPHICS_BOX_BOLD = ["┏", "┓", "┗", "┛", "━", "┃", "┳", "┫", "┣", "┻", "█", "▁"]
-    GRAPHICS_BOX_DOUBLE_OUTLINE = ["╔", "╗", "╚", "╝", "═", "║", "╦", "╣", "╠", "╩", "█", "▁"]
-    SPACING_CHAR = " "
-    _graphics_box: list[str] = GRAPHICS_BOX_STANDARD
+    def __init__(self, settings_filename: str = 'text.json'):
+        data = json.load(open(f'{os.path.dirname(os.path.realpath(__file__))}/{settings_filename}'))
+        default_theme = data['themes']['default']
+        color_groups = data['groups']
+        graphics = data['graphics']
+        escape_code_prefixes = data['escape_codes']['prefixes']
+        escape_code_colors = data['escape_codes']['colors']
+        settings = data['settings']
 
-    def __init__(self, graphics_box=None, spacing_char: str = SPACING_CHAR):
-        if graphics_box is not None:
-            self._graphics_box = graphics_box
-        if spacing_char is None:
-            spacing_char = self.SPACING_CHAR
-        self.SPACING_CHAR = spacing_char
+        colors_by_brightness = color_groups.get('brightness')
+        self.graphics_box = graphics['box'].get(settings['graphics']['box'])
+        self.space_char = graphics.get('space')
 
     @classmethod
     def get_colors_array(cls, colors: list | None, length: int):
@@ -39,9 +38,8 @@ class TextGraphics(BaseTextTemplate):
 
         return colors[:length]
 
-    @classmethod
     def box(
-            cls,
+            self,
             text_content: str | list[str],
             colors: list[str] | None = None,
             center: bool = False,
@@ -50,11 +48,11 @@ class TextGraphics(BaseTextTemplate):
             h_padding: int = 1,
             v_padding: int = 0,
     ):
-        left_top, right_top, left_bottom, right_bottom, horizontal, vertical = cls._graphics_box[:6]
+        left_top, right_top, left_bottom, right_bottom, horizontal, vertical = self.graphics_box[:6]
 
         content = [text_content] if type(text_content) is not list or text_content == "" else text_content
 
-        max_line_length = max(map(len, content)) or cls.COLUMNS
+        max_line_length = max(map(len, content)) or self.COLUMNS
 
         if min_width and max_line_length < min_width:
             max_line_length = min_width
@@ -65,7 +63,7 @@ class TextGraphics(BaseTextTemplate):
             content.insert(0, "")
             content.append("")
 
-        colors = cls.get_colors_array(colors, len(content) + (v_padding * 2))
+        colors = self.get_colors_array(colors, len(content) + (v_padding * 2))
 
         formatted_content = "".join(
             [
@@ -74,17 +72,17 @@ class TextGraphics(BaseTextTemplate):
                         fore(colors[i]) if True else "",
                         vertical,
                         Sty.reset,
-                        cls.SPACING_CHAR * h_padding,
+                        self.space_char * h_padding,
                         (
                             content_line.center(max_line_length)
                             if center
-                            else content_line.ljust(max_line_length, cls.SPACING_CHAR)
+                            else content_line.ljust(max_line_length, self.space_char)
                         ),
-                        cls.SPACING_CHAR * h_padding,
+                        self.space_char * h_padding,
                         fore(colors[i]) if True else "",
                         vertical,
                         Sty.reset,
-                        cls.NEWLINE,
+                        self.NEWLINE,
                     ]
                 )
                 for i, content_line in enumerate(content)
@@ -98,7 +96,7 @@ class TextGraphics(BaseTextTemplate):
                 horizontal * (max_line_length + (h_padding * 2)),
                 right_top,
                 Sty.reset,
-                cls.NEWLINE,
+                self.NEWLINE,
             ]
         )
         footer_graf = "".join(

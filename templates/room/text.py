@@ -1,9 +1,12 @@
+from Cheetah.Template import Template
 from colored import Style as Sty
 
 from models.character import Character
 from models.room import Room
 from services.room import RoomService
-from templates.text import BaseTextTemplate as Btt, TextGraphics
+from templates.utils.text.color import TextColors
+from templates.utils.text.graphics import BaseTextTemplate as Btt, TextGraphics
+from utils.colors import colorize_text
 
 
 class RoomText:
@@ -39,8 +42,13 @@ class RoomText:
             )
         )
 
-        objects_text = f"Objects: {", ".join(objs)}{Btt.NEWLINE}" if len(objs) > 0 else ""
-        characters_text = f"Characters: {", ".join(chars)}{Btt.NEWLINE}" if len(chars) > 0 else ""
+        objects_text = f'Objects: {", ".join(objs)}{Btt.NEWLINE}' if objs else ""
+        char_colors = TextColors.color_styles.get('error')
+        characters_text = str(
+            Template("Characters: $colorize_text(', '.join($characters), *$char_colors)",
+                     searchList={'characters': chars,
+                                 'char_colors': char_colors,
+                                 'colorize_text': colorize_text})) + Btt.NEWLINE if chars else ""
         exits_test = f"Exits: {Sty.reset}{", ".join(exits)}{Btt.NEWLINE}" if len(exits) > 0 else ""
 
         return "".join(

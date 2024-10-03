@@ -2,7 +2,7 @@ from typing import List
 
 from models.character import Character
 from models.object import Object
-from templates.text import BaseTextTemplate as Btt
+from templates.utils.text.graphics import BaseTextTemplate as Btt
 
 
 class CharacterText:

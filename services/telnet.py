@@ -18,7 +18,7 @@ from services.authn import AuthNService
 from services.mqtt import MQTTService
 from services.session import TextSession
 from templates.room.text import RoomText
-from templates.text import BaseTextTemplate as Btt, TextGraphics, TextColors
+from templates.utils.text.graphics import BaseTextTemplate as Btt, TextGraphics, TextColors
 from utils.colors import ct, hex_color_complimentary
 from utils.db import connect_db
 
@@ -71,7 +71,7 @@ class TelnetService:
             bg_colors: List[str] | None = None,
             required: bool = True,
             center: bool = False,
-            spacer: str = TextGraphics.SPACING_CHAR,
+            spacer: str = TextGraphics().space_char,
             h_padding: int = 1,
             default_selected: int | None = None,
     ):
@@ -97,7 +97,7 @@ class TelnetService:
             self.write_line(
                 [
                     ct(
-                        f"{TextGraphics.SPACING_CHAR * pad}{i + 1}:"
+                        f"{TextGraphics().space_char * pad}{i + 1}:"
                         f" {Sty.reverse if selected is not None and i == selected else ""}"
                         f" {x.center(length, spacer) if center else x.ljust(length, spacer)}",
                         fg[i],

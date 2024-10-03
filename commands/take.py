@@ -1,7 +1,7 @@
 from commands.base import Command
 from models.object import Object
 from services.session import TextSession
-from templates.text import BaseTextTemplate as Btt
+from templates.utils.text.graphics import BaseTextTemplate as Btt
 
 
 class TakeCommand(Command):

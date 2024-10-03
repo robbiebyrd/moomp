@@ -2,7 +2,7 @@
 from services.session import TextSession
 from templates.character.text import CharacterText
 from templates.room.text import RoomText
-from templates.text import BaseTextTemplate as Btt
+from templates.utils.text.graphics import BaseTextTemplate as Btt
 
 
 class LookCommand(Command):
