@@ -1,6 +1,6 @@
 from commands.base import Command
 from services.session import TextSession
-from services.telnet import TelnetService
+from services.telnet.telnet import TelnetService
 
 
 class LogoutCommand(Command):

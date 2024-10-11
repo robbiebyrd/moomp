@@ -7,7 +7,7 @@ from pluralizer import Pluralizer
 from commands.base import Command
 from models.speech import Speech
 from services.portal import PortalService
-from services.telnet import TextSession
+from services.telnet.telnet import TextSession
 
 
 class SayCommand(Command):
@@ -17,7 +17,7 @@ class SayCommand(Command):
     @classmethod
     async def notify(cls, document: Speech, session: "TextSession"):
         # Make a shallow copy of the document object for filtering.
-        doc = json.loads(document.to_json())
+        doc = json.loads(document.to_json(use_db_field=False))
 
         messages = ([
                         {

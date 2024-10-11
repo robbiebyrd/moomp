@@ -4,9 +4,10 @@ from colored import Style as Sty
 from models.character import Character
 from models.room import Room
 from services.room import RoomService
-from templates.utils.text.color import TextColors
-from templates.utils.text.graphics import BaseTextTemplate as Btt, TextGraphics
-from utils.colors import colorize_text
+from templates.utils.text.graphics import TextGraphicsRenderer
+
+renderer = TextGraphicsRenderer()
+ct = renderer.colorize
 
 
 class RoomText:
@@ -42,30 +43,29 @@ class RoomText:
             )
         )
 
-        objects_text = f'Objects: {", ".join(objs)}{Btt.NEWLINE}' if objs else ""
-        char_colors = TextColors.color_styles.get('error')
+        objects_text = f'Objects: {", ".join(objs)}{renderer.nl}' if objs else ""
         characters_text = str(
-            Template("Characters: $colorize_text(', '.join($characters), *$char_colors)",
+            Template("Characters: $renderer.list($characters, $char_colors)",
                      searchList={'characters': chars,
-                                 'char_colors': char_colors,
-                                 'colorize_text': colorize_text})) + Btt.NEWLINE if chars else ""
-        exits_test = f"Exits: {Sty.reset}{", ".join(exits)}{Btt.NEWLINE}" if len(exits) > 0 else ""
+                                 'char_colors': renderer.color_theme.error,
+                                 'colorize_text': ct, 'renderer': renderer})) + renderer.nl if chars else ""
+        exits_test = f"Exits: {Sty.reset}{", ".join(exits)}{renderer.nl}" if len(exits) > 0 else ""
 
         return "".join(
             [
-                Btt.LINE_RULE_NEWLINE,
-                TextGraphics.box(
+                renderer.lrn,
+                renderer.box(
                     room.name,
                     center=True,
                     h_padding=2,
                     v_padding=0,
                 ),
-                Btt.NEWLINE,
+                renderer.nl,
                 room.description,
-                Btt.NEWLINE,
+                renderer.nl,
                 exits_test,
                 objects_text,
                 characters_text,
-                Btt.LINE_RULE_NEWLINE,
+                renderer.lrn,
             ]
         )

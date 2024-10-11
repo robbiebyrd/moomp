@@ -2,7 +2,9 @@
 from services.session import TextSession
 from templates.character.text import CharacterText
 from templates.room.text import RoomText
-from templates.utils.text.graphics import BaseTextTemplate as Btt
+from templates.utils.text.color import ColorTextRenderer
+
+renderer = ColorTextRenderer()
 
 
 class LookCommand(Command):
@@ -15,7 +17,7 @@ class LookCommand(Command):
             command, target = 'look', 'me'
 
         if len(command) == 0 or target is None:
-            writer.write("You stare off, gazing into nothing." + Btt.NEWLINE)
+            writer.write(f"You stare off, gazing into nothing.{renderer.nl}")
             return
         else:
             if target.lower() == "me":

@@ -22,6 +22,7 @@ bcrypt = "^4.2.0"
 colored = "^2.2.4"
 pluralizer = "^1.2.0"
 lupa = "^2.2"
+pydantic-extra-types = "^2.9.0"
 
 [build-system]
 requires = ["poetry-core"]

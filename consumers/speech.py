@@ -3,11 +3,12 @@ import json
 from middleware.updater import unpack_topic
 from models.character import Character
 from services.session import TextSession
-from templates.utils.text.graphics import BaseTextTemplate as Btt
-from utils.colors import ct
+from templates.utils.text.color import ColorTextRenderer
 from utils.db import connect_db
 
 connect_db()
+renderer = ColorTextRenderer()
+ct = renderer.colorize
 
 
 class SpeechConsumer:
@@ -22,15 +23,21 @@ class SpeechConsumer:
             speaker = Character.objects(id=speaker_id).first()
             payload = json.loads(msg.payload)
             prefix = payload.get("prefix")
-            msg = ct(payload.get('message'), *session.colors.get('chat'))
+            msg = ct(
+                payload.get('message'),
+                renderer.color_theme.chatSelf
+                if speaker.id == session.character.id
+                else renderer.color_theme.chat
+            )
+
             session.writer.write(
                 (
-                    f"You {prefix[0]} {msg}{Btt.NEWLINE}"
+                    f"You {prefix[0]} {msg}{renderer.nl}"
                     if speaker.id == session.character.id
-                    else f"{speaker.name} {prefix[1]} {msg}{Btt.NEWLINE}"
+                    else f"{speaker.name} {prefix[1]} {msg}{renderer.nl}"
                 ),
             )
 
     @classmethod
     def validate_topic(cls, topic: str) -> bool:
-        return True if topic.startswith('/Speech/') else False
+        return bool(topic.startswith('/Speech/'))

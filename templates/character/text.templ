@@ -1,8 +1,17 @@
-────────────────────
-You are: $character.name
+$renderer.box($character.name)
+
 In Room: $character.room.name
 Inventory: $character.inventory
-────────────────────
+$renderer.lr
+
+
+
+
+characters_text = str(
+    Template("Characters: $colorize_text(', '.join($characters), *$char_colors)",
+             searchList={'characters': chars,
+                         'char_colors': renderer.color_theme.error,
+                         'colorize_text': colorize_text})) + renderer.nl if chars else ""
 
 
 
