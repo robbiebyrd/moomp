@@ -5,7 +5,7 @@ from utils.clean import clean
 from utils.migrate import migrate
 
 parser = argparse.ArgumentParser(prog="MOOMP", description="A simple MOO-like server, written in Python using MongoDB.")
-parser.add_argument("command", choices=["dev", "start", "clean", "migrate", "telnet", 'script'])
+parser.add_argument("command", choices=["dev", "clean", "migrate", "telnet", 'script'])
 parser.add_argument("instance", nargs='?', default=None)
 
 
@@ -15,9 +15,6 @@ def main():
     match args.command:
         case "dev":
             clean()
-            migrate()
-            TelnetServer(args.instance).serve()
-        case "start":
             migrate()
             TelnetServer(args.instance).serve()
         case "clean":

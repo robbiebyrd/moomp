@@ -26,13 +26,9 @@ def notify(document_type, document, document_operation, operator=None):
 
     filtered_object_fields = {"Account": ["password"]}
 
-    for field in filtered_object_fields.get(document_type, []):
+    for field in (filtered_object_fields.get(document_type, []) + all_filtered_fields):
         if hasattr(doc, field):
             doc.pop(field)
-
-    for field in all_filtered_fields:
-        if field in doc:
-            del doc[field]
 
     operator_path = f"/{str(operator.id)}" if operator else ""
 

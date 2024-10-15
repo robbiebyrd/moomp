@@ -1,7 +1,10 @@
 ﻿from commands.base import Command
+from services.room import RoomService
 from services.session import TextSession
-from templates.character.text import CharacterText
-from templates.room.text import RoomText
+from templates.character.text import CharacterTextTemplate
+from templates.object.text import ObjectTextTemplate
+from templates.portal.text import PortalTextTemplate
+from templates.room.text import RoomTextTemplate
 from templates.utils.text.color import ColorTextRenderer
 
 renderer = ColorTextRenderer()
@@ -12,25 +15,43 @@ class LookCommand(Command):
 
     @classmethod
     async def telnet(cls, reader, writer, mqtt_client, command: str, session: TextSession):
-        command, target = cls.parse_command_verb_and_target(command)
-        if command == "me":
-            command, target = 'look', 'me'
+        command, target = ('look', 'me') if command == "me" else cls.parse_command_verb_and_target(command)
+
+        here = RoomService.here(session.character.room.id)
+
+        objs = here.get("objects")
+        characters = list(
+            filter(
+                lambda s: s is not None,
+                map(lambda x: x if x.id != session.character.id else None, here.get("characters")),
+            )
+        )
+        exits = RoomService.exits_and_aliases(session.character.room.id)
 
         if len(command) == 0 or target is None:
             writer.write(f"You stare off, gazing into nothing.{renderer.nl}")
-            return
-        else:
-            if target.lower() == "me":
-                # Describe the room the current character
-                writer.write(CharacterText.get(session.character))
-                return
 
-            if target.lower() in ["here", "around"]:
-                # Describe the room the character is currently in
-                writer.write(RoomText.get(session.character.room, session.character))
-                return
+        elif target.lower() in ["me", session.character.name.lower()]:
+            writer.write(CharacterTextTemplate.get(session.character))
 
-            if target.lower() in ["in", "inside", "into"]:
-                # TODO: Do something to an object here
-                a = 1
-                return
+        elif target.lower() in ["here", "around", session.character.room.name.lower()]:
+            writer.write(RoomTextTemplate.get(session.character.room, session.character))
+
+        elif target.lower() in ["in", "inside", "into"]:
+            # TODO: Do something to an object here
+            a = 1
+
+
+        elif target.lower() in list(map(lambda x: x.name.lower(), characters)):
+            for char in characters:
+                if char.name.lower() == target.lower():
+                    writer.write(CharacterTextTemplate.get(char))
+
+        elif target.lower() in list(map(lambda x: x.name.lower(), objs)):
+            for obj in objs:
+                if obj.name.lower() == target.lower():
+                    writer.write(ObjectTextTemplate.get(obj))
+
+        elif target.lower() in exits:
+            to, portal, room = RoomService.resolve_alias(session.character.room.id, target.lower())
+            writer.write(PortalTextTemplate.get(portal, room, to))

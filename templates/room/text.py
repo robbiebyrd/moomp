@@ -1,7 +1,5 @@
-from Cheetah.Template import Template
-from colored import Style as Sty
+from pathlib import Path
 
-from models.character import Character
 from models.room import Room
 from services.room import RoomService
 from templates.utils.text.graphics import TextGraphicsRenderer
@@ -9,63 +7,64 @@ from templates.utils.text.graphics import TextGraphicsRenderer
 renderer = TextGraphicsRenderer()
 ct = renderer.colorize
 
+from random import randrange
+from typing import List
 
-class RoomText:
+from Cheetah.Template import Template
+
+from models.character import Character
+from templates.text import BaseTextTemplate
+from templates.utils.text.graphics import TextGraphicsRenderer
+from utils.db import connect_db
+
+ren = TextGraphicsRenderer()
+connect_db()
+
+
+class RoomTextTemplate(BaseTextTemplate):
     @classmethod
-    def get_exit_aliases(cls, room: Room, lowercase: bool = False, filter_duplicates: bool = False):
-        exits = []
-        for exit_item in RoomService.exits(room_id=room.id):
-            if exit_item.to_room.id == room.id:
-                exits += exit_item.alias_to
-            else:
-                exits += exit_item.alias_from
-        if lowercase:
-            exits = [x.lower() for x in exits]
-        if filter_duplicates:
-            exits = list(set(exits))
-        return exits
+    def get_list(cls, characters: List[Character], colors: List[str]):
+        text = ""
+
+        chars = [char.name for char in characters]
+        text += f"{ren.nl}Characters: " + " ".join(chars) if chars else ""
+        return text
+
+    @staticmethod
+    def _cwd(filename: str):
+        return f"/{Path(f'./{__file__}').parent}/{filename}.templ"
 
     @classmethod
-    def get(cls, room: Room, character: Character):
-        exits = []
-        for exit_item in RoomService.exits(room_id=room.id):
-            if exit_item.to_room.id == room.id:
-                exits = exits + exit_item.alias_to
-            else:
-                exits = exits + exit_item.alias_from
+    def get(cls,
+            room: Room,
+            character: Character,
+            colors: list[str] = None,
+            color_groups: list[list[str]] = None):
+        default_color_groups = list(ren.color_groups.get('colors').values())
+        default_colors = default_color_groups[randrange(len(default_color_groups))]
+
+        exits = RoomService.exits_and_aliases(character.room.id, False)
         here = RoomService.here(room.id)
 
         objs = list(map(lambda x: x.name, here.get("objects")))
-        chars = list(
+        characters = list(
             filter(
                 lambda s: s is not None,
                 map(lambda x: x.name if x.id != character.id else None, here.get("characters")),
             )
         )
-
-        objects_text = f'Objects: {", ".join(objs)}{renderer.nl}' if objs else ""
-        characters_text = str(
-            Template("Characters: $renderer.list($characters, $char_colors)",
-                     searchList={'characters': chars,
-                                 'char_colors': renderer.color_theme.error,
-                                 'colorize_text': ct, 'renderer': renderer})) + renderer.nl if chars else ""
-        exits_test = f"Exits: {Sty.reset}{", ".join(exits)}{renderer.nl}" if len(exits) > 0 else ""
-
-        return "".join(
-            [
-                renderer.lrn,
-                renderer.box(
-                    room.name,
-                    center=True,
-                    h_padding=2,
-                    v_padding=0,
-                ),
-                renderer.nl,
-                room.description,
-                renderer.nl,
-                exits_test,
-                objects_text,
-                characters_text,
-                renderer.lrn,
-            ]
+        return str(
+            Template(
+                cls.load(cls._cwd('room')).replace('\n', ren.nl),
+                searchList={
+                    'room': room,
+                    'exits': exits,
+                    'char': character,
+                    'objs': objs,
+                    'chars': characters,
+                    'ren': ren,
+                    'color_list': color_groups or default_color_groups,
+                    'colors': colors or default_colors,
+                },
+            )
         )

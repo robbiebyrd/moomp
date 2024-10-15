@@ -51,7 +51,7 @@ def hex_color_complimentary(hex_color: str):
         str: The complementary hex color string.
     """
     r, g, b = hex_color_to_rgb(hex_color)
-    r, g, b = r ^ 255, g ^ 255, b ^ 255
+    r, g, b = r ^ 215, g ^ 215, b ^ 215
     return rgb_color_to_hex(r, g, b)
 
 

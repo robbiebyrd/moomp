@@ -1,14 +1,12 @@
 import contextlib
 
 from ansi_escapes import ansiEscapes as ae
-from colored import Style as Sty
 
 from services.session import TextSession
 from templates.utils.text.color import ColorTextRenderer
 from utils.color import hex_color_complimentary, get_colors_array
 
-renderer = ColorTextRenderer()
-ct = renderer.colorize
+ren = ColorTextRenderer()
 
 
 def parse_input_type(line: str):
@@ -34,7 +32,7 @@ async def select(
         bg_colors: list[str] | None = None,
         required: bool = True,
         center: bool = False,
-        spacer: str = renderer.sp,
+        spacer: str = ren.sp,
         h_padding: int = 1,
         default_selected: int | None = None,
 ):
@@ -46,7 +44,7 @@ async def select(
     ansi_escape_header_key_seen = False
 
     def create_list(fg, bg, ops, pad):
-        session.writer.write(renderer.enc(ct(f"{message}", renderer.color_theme.input) + renderer.nl))
+        session.writer.write(ren.enc(ren.ct(f"{message}", ren.color_theme.input) + ren.nl))
         length = max(map(len, ops)) + (h_padding * 2)
 
         fg = get_colors_array(len(ops), fg)
@@ -56,15 +54,15 @@ async def select(
                 hex_color_complimentary(fg[len(fg) - 1 - i]) for i in range(len(fg))
             ]
 
-        session.writer.write(renderer.enc(
+        session.writer.write(ren.enc(
             "".join([
-                ct(
-                    f"{renderer.sp * pad}{i + 1}:"
-                    f" {Sty.reverse if selected is not None and i == selected else ''}"
+                ren.ct(
+                    f"{ren.sp * pad}{i + 1}:"
+                    f" {ren.style('reverse') if selected is not None and i == selected else ''}"
                     f" {x.center(length, spacer) if center else x.ljust(length, spacer)}",
                     [fg[i],
                      bg[i]]
-                ) + renderer.nl
+                ) + ren.nl
                 for i, x in enumerate(ops)
             ]),
         ))
@@ -87,7 +85,7 @@ async def select(
                 escape_key_seen = False
             continue
         if escape_key_seen is True and ansi_escape_header_key_seen is True:
-            session.writer.write("".join([ae.eraseLines(len(options) + 3)]) + renderer.nl)
+            session.writer.write("".join([ae.eraseLines(len(options) + 3)]) + ren.nl)
             selected = handle_menu_select(char_input, len(options), selected)
             create_list(colors, bg_colors, options, h_padding)
             escape_key_seen, ansi_escape_header_key_seen = False, False
@@ -99,15 +97,16 @@ async def select(
         if ord(char_input) in {10, 13}:
             if required and len(line) == 0:
                 if selected is not None:
+                    session.writer.write(f"{selected + 1}{ren.nl}")
                     return selected + 1
                 session.writer.write(
-                    ct(
+                    ren.ct(
                         "This value is required",
-                        *renderer.color_theme.error)
-                    + renderer.nl)
+                        *ren.color_theme.error)
+                    + ren.nl)
                 create_list(colors, bg_colors, options, h_padding)
                 continue
-            session.writer.write(renderer.nl)
+            session.writer.write(ren.nl)
             return parse_input_type(line)
         else:
             session.writer.echo(char_input)
@@ -142,7 +141,7 @@ async def input_line(
     line = ""
 
     if message is not None:
-        session.writer.write(message + (renderer.nl if on_new_line else ""))
+        session.writer.write(message + (ren.nl if on_new_line else ""))
     while True:
         char_input = await session.reader.read(1)
 
@@ -153,12 +152,30 @@ async def input_line(
             session.writer.write(ae.cursorBackward(1) + ae.eraseEndLine)
         elif ord(char_input) in {10, 13}:
             if required and len(line) == 0:
-                session.writer.write(f"This value is required.{renderer.nl}")
+                session.writer.write(f"This value is required.{ren.nl}")
                 continue
-            session.writer.write(renderer.nl)
+            session.writer.write(ren.nl)
             return parse_input_type(line)
         else:
             session.writer.echo(
                 mask_character if mask_character is not None else char_input
             )
             line += str(char_input)
+
+
+async def input_char(
+        session: TextSession,
+        message: str | None = None,
+        mask_character: str = None,
+        on_new_line: bool = True,
+):
+    line = ""
+
+    if message is not None:
+        session.writer.write(message + (ren.nl if on_new_line else ""))
+    while True:
+        char_input = await session.reader.read(1)
+
+        if len(char_input) > 0:
+            session.writer.write(f"{line if mask_character is None else mask_character}{ren.nl}")
+            return parse_input_type(line)

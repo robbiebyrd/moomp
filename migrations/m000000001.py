@@ -82,11 +82,11 @@ def run():
     character_instances = list(
         filter(
             partial(is_not, None),
-            [Character(**data) if not Character.objects(name=data.get("name")) else None for data in character_array],
+            [None if Character.objects(name=data.get("name")) else Character(**data) for data in character_array],
         )
     )
 
-    if len(character_instances) > 0:
+    if character_instances:
         Character.objects.insert(character_instances, load_bulk=False)
 
     the_prog = Character.objects(name="Programmer").first()
@@ -112,11 +112,11 @@ def run():
     room_instances = list(
         filter(
             partial(is_not, None),
-            [Room(**data) if not Room.objects(name=data.get("name"), owner=the_wiz) else None for data in room_array],
+            [None if Room.objects(name=data.get("name"), owner=the_wiz) else Room(**data) for data in room_array],
         )
     )
 
-    if len(room_instances) > 0:
+    if room_instances:
         Room.objects.insert(room_instances, load_bulk=False)
 
     nowhere = Room.objects(name="Nowhere").first()
@@ -139,7 +139,7 @@ def run():
         Object.objects.create(
             owner=the_wiz,
             name="Atom",
-            description="An atom of a mysterious put powerful element.",
+            description="An atom of a plain, yet immensely powerful, element.",
             visible=False,
             holder=the_wiz,
             properties={"locked": True},

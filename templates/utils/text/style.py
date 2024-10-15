@@ -1,10 +1,10 @@
-from templates.utils.text.config import TextPrefixes, TextStyles
+from templates.utils.text.config import ConfigTextPrefixes, ConfigTextStyles
 from templates.utils.text.text import BaseTextRenderer
 
 
 class StyleTextRenderer(BaseTextRenderer):
-    escape_code_prefixes: TextPrefixes
-    escape_code_styles: TextStyles
+    escape_code_prefixes: ConfigTextPrefixes
+    escape_code_styles: ConfigTextStyles
 
     def __init__(self, config_file=None, escape_code_prefixes=None, escape_code_styles=None):
         super().__init__(config_file)

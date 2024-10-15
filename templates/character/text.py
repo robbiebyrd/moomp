@@ -1,34 +1,44 @@
+from pathlib import Path
+from random import randrange
 from typing import List
 
+from Cheetah.Template import Template
+
 from models.character import Character
-from models.object import Object
-from templates.utils.text.color import ColorTextRenderer
+from templates.text import BaseTextTemplate
+from templates.utils.text.graphics import TextGraphicsRenderer
+from utils.db import connect_db
 
-renderer = ColorTextRenderer()
+ren = TextGraphicsRenderer()
+connect_db()
 
 
-class CharacterText:
+class CharacterTextTemplate(BaseTextTemplate):
     @classmethod
     def get_list(cls, characters: List[Character], colors: List[str]):
         text = ""
 
         chars = [char.name for char in characters]
-        text += f"{renderer.nl}Characters: " + " ".join(chars) if chars else ""
+        text += f"{ren.nl}Characters: " + " ".join(chars) if chars else ""
         return text
+
+    @staticmethod
+    def _cwd(filename: str):
+        return f"/{Path(f'./{__file__}').parent}/{filename}.templ"
 
     @classmethod
     def get(cls, character: Character):
-        header = f"You are: {character.name}{renderer.nl}"
-        header += (character.description + renderer.nl) if character.description else ""
-        inventory_text = f"Inventory: {", ".join([x.name for x in Object.objects(holder=character)])}{renderer.nl}"
-        where = f"In Room: {character.room.name}{renderer.nl}"
+        color_groups = list(ren.color_groups.get('colors').values())
+        colors = color_groups[randrange(len(color_groups))]
 
-        return "".join(
-            [
-                renderer.lrn,
-                header,
-                where,
-                inventory_text,
-                renderer.lrn,
-            ]
+        return str(
+            Template(
+                cls.load(cls._cwd('character')).replace('\n', ren.nl),
+                searchList={
+                    'character': character,
+                    'ren': ren,
+                    'color_list': color_groups,
+                    'colors': colors,
+                },
+            )
         )

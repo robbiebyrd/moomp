@@ -9,9 +9,10 @@ connect_db()
 renderer = ColorTextRenderer()
 ct = renderer.colorize
 
+autologin = ["wizard@yourhost.com", "wizard"]
+
 
 async def login(session):
-    autologin = ["wizard@yourhost.com", "wizard"]
     while (
             True
     ):  # This should be a count. We should error out after x number of login tries

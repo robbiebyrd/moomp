@@ -7,12 +7,12 @@ class TextGraphicsSettings(BaseModel, extra='allow'):
     box: str
 
 
-class TextSettings(BaseModel, extra='allow'):
+class ConfigTextSettings(BaseModel, extra='allow'):
     theme: str
     graphics: TextGraphicsSettings
 
 
-class TextTheme(BaseModel, extra='allow'):
+class ConfigTextTheme(BaseModel, extra='allow'):
     error: list[str]
     input: list[str]
     inputActive: list[str]
@@ -20,7 +20,7 @@ class TextTheme(BaseModel, extra='allow'):
     chatSelf: list[str]
 
 
-class TextText(BaseModel, extra='allow'):
+class ConfigTextBase(BaseModel, extra='allow'):
     rows: int
     columns: int
     newline: str
@@ -29,7 +29,7 @@ class TextText(BaseModel, extra='allow'):
     box: dict[str, str]
 
 
-class TextStyles(BaseModel, extra='allow'):
+class ConfigTextStyles(BaseModel, extra='allow'):
     bold: str
     dim: str
     italic: str
@@ -48,7 +48,7 @@ class TextStyles(BaseModel, extra='allow'):
     reset_underline_color: str
 
 
-class TextPrefixes(BaseModel, extra='allow'):
+class ConfigTextPrefixes(BaseModel, extra='allow'):
     escape: str
     end: str
     foreground: str
@@ -56,18 +56,18 @@ class TextPrefixes(BaseModel, extra='allow'):
     underline: str
 
 
-type TextColorList = dict[str, str]
+type ConfigTextColorList = dict[str, str]
 
 
-class TextEscapeCodes(BaseModel, extra='allow'):
-    styles: TextStyles
-    prefixes: TextPrefixes
-    colors: dict[str, dict[str, TextColorList]]
+class ConfigTextEscapeCodes(BaseModel, extra='allow'):
+    styles: ConfigTextStyles
+    prefixes: ConfigTextPrefixes
+    colors: dict[str, dict[str, ConfigTextColorList]]
 
 
 class ConfigText(BaseModel, extra='allow'):
-    settings: TextSettings
-    themes: dict[str, TextTheme]
+    settings: ConfigTextSettings
+    themes: dict[str, ConfigTextTheme]
     groups: dict[str, dict[str, list[str]]]
-    text: TextText
-    escape_codes: TextEscapeCodes
+    text: ConfigTextBase
+    escape_codes: ConfigTextEscapeCodes

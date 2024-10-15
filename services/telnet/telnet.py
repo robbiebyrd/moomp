@@ -9,16 +9,16 @@ from colored import Style as Sty
 from commands import base
 from models.instance import Instance
 from services.mqtt import MQTTService
+from services.room import RoomService
 from services.session import TextSession
 from services.telnet.auth_n import login, logout
 from services.telnet.mqtt import refresh_subscriptions
-from templates.room.text import RoomText
+from templates.room.text import RoomTextTemplate
 from templates.utils.text.color import ColorTextRenderer
 from utils.db import connect_db
 
 connect_db()
-renderer = ColorTextRenderer()
-ct = renderer.colorize
+ren = ColorTextRenderer()
 
 
 class TelnetService:
@@ -40,22 +40,21 @@ class TelnetService:
         if not isinstance(message, list):
             message = [message]
         for msg in message:
-            self.session.writer.write(str(msg) + (renderer.nl if add_newline else ""))
+            self.session.writer.write(str(msg) + (ren.nl if add_newline else ""))
 
     async def thread(self):
         try:
-            colors = self.session.colors
-
-            if msg := self.session.instance.properties['msg_connect']:
+            if msg := self.session.instance.properties.get('msg_connect', None):
                 t = Template(msg, searchList={"instance": self.session.instance, "fg": Fg})
                 self.write_line(str(t))
 
             # Attempt to log in
             self.session.character = await login(self.session)
+
             line = ""
 
             self.write_line(
-                RoomText.get(self.session.character.room, self.session.character),
+                RoomTextTemplate.get(self.session.character.room, self.session.character),
                 add_newline=False
             )
 
@@ -84,7 +83,7 @@ class TelnetService:
                         # Reload the character and show the Room text again
                         self.session.character.reload()
                         self.write_line(
-                            RoomText.get(
+                            RoomTextTemplate.get(
                                 self.session.character.room, self.session.character
                             )
                         )
@@ -113,7 +112,7 @@ class TelnetService:
                                 [
                                     ae.eraseLine,
                                     ae.cursorTo(0),
-                                    ct(line, renderer.color_theme.input),
+                                    ren.ct(line, ren.color_theme.input),
                                     Sty.reset,
                                 ]
                             ),
@@ -137,14 +136,14 @@ class TelnetService:
                                 self.session,
                             )
                         else:
-                            self.write_line("I'm sorry, I didn't understand that.")
+                            self.write_line(f"I'm sorry, I didn't understand that.{ren.nl}")
 
                         # Clear the line and we start all over again
                         line = ""
                     case _:  # Any other character
                         char = str(char_input)
                         # Any other characters input be added to the line buffer
-                        self.session.writer.echo(ct(char, renderer.color_theme.inputActive))
+                        self.session.writer.echo(ren.ct(char, ren.color_theme.inputActive))
                         line += char
         finally:
             pass
@@ -153,19 +152,14 @@ class TelnetService:
     def command_is_an_exit(cls, line, session):
         return not cls.commands(
             line
-        ) and line.strip().lower() in RoomText.get_exit_aliases(
-            session.character.room, True, True
+        ) and line.strip().lower() in RoomService.exits_and_aliases(
+            session.character.room.id, True, True
         )
 
     @staticmethod
     def commands(line: str):
-        stripped_line = line.strip().lower()
-
-        # Get all commands
+        strip = line.strip().lower()
         command_modules = base.get_command_modules()
-
         for cmd in command_modules:
-            if stripped_line in cmd.command_prefixes or any(
-                    stripped_line.startswith(prefix) for prefix in cmd.command_prefixes
-            ):
+            if strip in cmd.command_prefixes or any(strip.startswith(prefix) for prefix in cmd.command_prefixes):
                 return cmd

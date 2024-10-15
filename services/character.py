@@ -2,7 +2,7 @@ from middleware.updater import notify_and_create_event
 from models.character import Character, CharacterCreateDTO, CharacterUpdateDTO
 from models.room import Room
 from services.authn import AuthNService
-from services.portal import PortalService
+from services.room import RoomService
 from utils.db import connect_db
 
 
@@ -67,19 +67,8 @@ class CharacterService:
     @classmethod
     def move(cls, character_id: str, direction: str):
         character = Character.objects(id=character_id).first()
-        portals = PortalService.get_by_room(character.room.id)
-        direction = direction.lower()
         current_room = character.room
-
-        for portal in portals:
-            if direction in [x.lower() for x in portal.alias_to]:
-                character.room = portal.from_room
-                break
-            elif direction in [x.lower() for x in portal.alias_from] and portal.reversible is True:
-                character.room = portal.to_room
-                break
-        else:
-            return
+        _, _, character.room = RoomService.resolve_alias(character.room.id, direction)
 
         notify_and_create_event("Room", current_room, "Exited", character)
         notify_and_create_event("Room", character.room, "Entered", character)

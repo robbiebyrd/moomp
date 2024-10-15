@@ -1,3 +1,5 @@
+from itertools import chain
+
 from mongoengine.queryset.visitor import Q
 
 from models.character import Character
@@ -46,7 +48,8 @@ class RoomService:
                 & (Q(online=True) if not show_offline else None)
                 & (Q(visible=True) if not show_offline else None)
         )
-        return {"objects": Object.objects(objects_query), "characters": Character.objects(characters_query)}
+        return {"objects": Object.objects(objects_query), "characters": Character.objects(characters_query),
+                'exits': cls.exits(room_id)}
 
     @classmethod
     def update(cls, room: RoomUpdateDTO):
@@ -100,3 +103,45 @@ class RoomService:
         {this_room.description}\r\n
         
         """
+
+    @classmethod
+    def exits_and_aliases(cls, room_id: str, lowercase: bool = True, filter_duplicates: bool = True, include_name:
+    bool = True):
+        room = Room.objects(id=room_id).first()
+        exits = []
+
+        for exit_item in RoomService.exits(room_id=room.id):
+            exits.append(*list(chain(*cls.exits_with_aliases(room.id).values())))
+            if include_name:
+                exits.append(exit_item.name)
+
+        if lowercase:
+            exits = [x.lower() for x in exits]
+        if filter_duplicates:
+            exits = list(set(exits))
+
+        return exits
+
+    @classmethod
+    def exits_with_aliases(cls, room_id: str):
+        room = Room.objects(id=room_id).first()
+        return {
+            exit_item.name: (
+                exit_item.alias_to
+                if exit_item.to_room.id == room.id
+                else exit_item.alias_from
+            )
+            for exit_item in RoomService.exits(room_id=room.id)
+        }
+
+    @classmethod
+    def resolve_alias(cls, room_id: str, direction: str):
+        room = Room.objects(id=room_id).first()
+        portals = PortalService.get_by_room(room.id)
+        direction = direction.lower()
+
+        for portal in portals:
+            if direction in [x.lower() for x in portal.alias_to]:
+                return True, portal, portal.from_room
+            elif direction in [x.lower() for x in portal.alias_from] and portal.reversible is True:
+                return False, portal, portal.to_room

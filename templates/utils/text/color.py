@@ -2,14 +2,14 @@ import contextlib
 
 from pydantic_extra_types.color import Color
 
-from templates.utils.text.config import TextColorList, TextTheme
+from templates.utils.text.config import ConfigTextColorList, ConfigTextTheme
 from templates.utils.text.style import StyleTextRenderer
 from utils.color import rgb_color_to_hex, find_closest_hex_color, ColorEncodingTypes, color_kind
 
 
 class ColorTextRenderer(StyleTextRenderer):
-    escape_code_colors: dict[str, TextColorList]
-    color_theme: TextTheme
+    escape_code_colors: dict[str, ConfigTextColorList]
+    color_theme: ConfigTextTheme
     color_groups: dict[str, dict[str, list[str]]]
 
     def __init__(self, config_file=None, escape_code_prefixes=None, escape_code_colors=None, escape_code_styles=None,
@@ -21,6 +21,7 @@ class ColorTextRenderer(StyleTextRenderer):
         self.escape_code_styles = escape_code_styles or self.config.escape_codes.styles
         self.color_theme = self.config.themes[color_theme or 'default']
         self.color_groups = color_groups or self.config.groups
+        self.ct = self.colorize
 
     def wrap_escape_code(self, code: str | list[str]) -> str:
         code = [code] if isinstance(code, str) else code
