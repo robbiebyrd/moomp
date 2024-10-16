@@ -16,4 +16,4 @@ RUN ls -lart
 
 COPY . .
 
-ENTRYPOINT ["poetry", "run", "python", "-m", "main", "start"]
+ENTRYPOINT ["poetry", "run", "python", "-m", "main", "telnet", "Hereville"]

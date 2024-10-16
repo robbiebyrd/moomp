@@ -1,10 +1,12 @@
+from datetime import datetime
+
 from mongoengine import (
     Document,
     ReferenceField,
     StringField,
     BooleanField,
     DictField,
-    SequenceField,
+    SequenceField, DateTimeField,
 )
 from pydantic import BaseModel
 
@@ -12,6 +14,7 @@ from pydantic import BaseModel
 class Room(Document):
     meta = {"collection": "rooms"}
     cId = SequenceField(db_field="c")
+    created_at = DateTimeField(required=True, default=datetime.now)
 
     owner = ReferenceField("Character", required=True, db_field="_ownerId")
     parent = ReferenceField("self", db_field="_parentId")

@@ -1,10 +1,12 @@
+from datetime import datetime
+
 from mongoengine import (
     Document,
     ReferenceField,
     StringField,
     DictField,
     SequenceField,
-    BooleanField,
+    BooleanField, DateTimeField,
 )
 from pydantic import BaseModel, ValidationError
 
@@ -14,6 +16,7 @@ common_properties = {"locked": bool}
 class Object(Document):
     meta = {"collection": "objects"}
     cId = SequenceField(db_field="c")
+    created_at = DateTimeField(required=True, default=datetime.now)
 
     parent = ReferenceField("self", db_field="_parentId")
     owner = ReferenceField("Character", required=True, db_field="_ownerId")

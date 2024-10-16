@@ -1,7 +1,6 @@
 from commands.base import Command
 from services.character import CharacterService
 from services.session import TextSession
-from services.telnet import TelnetService
 
 
 class WaypointCommand(Command):
@@ -17,10 +16,10 @@ class WaypointCommand(Command):
             pass
 
         if len(command_properties.strip().lower()) == 0:
-            TelnetService.write_line(writer, "You must give your waypoint a name.")
+            writer.write("You must give your waypoint a name.")
             return
 
         props = session.character.properties.get("waypoints", {})
         props[command_properties] = session.character.room.id
         CharacterService.update_property(session.character.id, {"waypoints": props})
-        TelnetService.write_line(writer, f"Your waypoint {command_properties} has been set.")
+        writer.write(f"Your waypoint {command_properties} has been set.")

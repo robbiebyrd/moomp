@@ -1,35 +1,40 @@
+from pathlib import Path
+from random import randrange
 from typing import List
 
+from Cheetah.Template import Template
+
 from models.character import Character
-from models.object import Object
-from templates.text import BaseTextTemplate as Btt
+from templates.text import BaseTextTemplate
+from utils.db import connect_db
+
+connect_db()
 
 
-class CharacterText:
-    @classmethod
-    def get_list(cls, characters: List[Character], colors: List[str]):
+class CharacterTextTemplate(BaseTextTemplate):
+    def get_list(self, characters: List[Character], colors: List[str]):
         text = ""
 
-        chars = []
-        for i, char in enumerate(characters):
-            chars.append(char.name)
+        chars = [char.name for char in characters]
+        text += f"{self._session.ren.nl}Characters: " + " ".join(chars) if chars else ""
+        return text
 
-        text += f"{Btt.NEWLINE}Characters: " + " ".join(chars) if len(chars) > 0 else ""
-        return []
+    @staticmethod
+    def _cwd(filename: str):
+        return f"/{Path(f'./{__file__}').parent}/{filename}.templ"
 
-    @classmethod
-    def get(cls, character: Character):
-        header = f"{character.name}{Btt.NEWLINE}"
-        header += (character.description + Btt.NEWLINE) if character.description else ""
-        inventory_text = f"Inventory: {", ".join([x.name for x in Object.objects(holder=character)])}{Btt.NEWLINE}"
-        where = f"In Room: {character.room.name}{Btt.NEWLINE}"
+    def get(self, character: Character):
+        color_groups = list(self._session.ren.color_groups.get('colors').values())
+        colors = color_groups[randrange(len(color_groups))]
 
-        return "".join(
-            [
-                Btt.LINE_RULE_NEWLINE,
-                header,
-                where,
-                inventory_text,
-                Btt.LINE_RULE,
-            ]
+        return str(
+            Template(
+                self.load(self._cwd('character')).replace('\n', self._session.ren.nl),
+                searchList={
+                    'character': character,
+                    'ren': self._session.ren,
+                    'color_list': color_groups,
+                    'colors': colors,
+                },
+            )
         )
