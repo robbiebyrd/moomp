@@ -28,11 +28,11 @@ class LookCommand(Command):
             writer.write(f"You stare off, gazing into nothing.{session.ren.nl}")
             return
 
-        elif target.lower() in ["me", session.character.name.lower()]:
+        if target.lower() in ["me", session.character.name.lower()]:
             writer.write(CharacterTextTemplate(session).get(session.character))
             return
 
-        elif target.lower() in ["here", "around", session.character.room.name.lower()]:
+        if target.lower() in ["here", "around", session.character.room.name.lower()]:
             writer.write(RoomTextTemplate(session).get(session.character.room, session.character))
             return
 
