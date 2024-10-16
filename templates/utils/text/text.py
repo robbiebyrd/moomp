@@ -38,6 +38,14 @@ class BaseTextRenderer:
         self.sp = self.enc(self.config.text.space)
         self.lrn = self.lr + self.nl
 
+    def resize(self, size: list[int]):
+        # Any property that needs to be dynamically set based on the width and height
+        # (or rows and columns) of a text session can be recalculated here.
+        self.col, self.row = size
+
+        lr_char, max_width = self.config.text.line_rule
+        self.lr = lr_char * min(size[0], max_width)
+
     @staticmethod
     def enc(e):
         return bytes(e.encode('utf-8')).decode('unicode-escape')

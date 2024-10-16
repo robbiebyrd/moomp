@@ -10,7 +10,7 @@ class TextGraphicsRenderer(ColorTextRenderer):
     def __init__(self, config_file: str | None = None):
         super().__init__(config_file)
 
-        self.colors = self.color_groups.get("brightness").get('regular')
+        self.colors = self.color_groups.get("brightness").get('darkest')
         self.graphics_box = self.config.text.box[self.config.settings.graphics.box]
 
     def box(

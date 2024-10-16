@@ -14,11 +14,10 @@ from services.session import TextSession
 from services.telnet.auth_n import login, logout
 from services.telnet.mqtt import refresh_subscriptions
 from templates.room.text import RoomTextTemplate
-from templates.utils.text.color import ColorTextRenderer
+from templates.utils.text.graphics import TextGraphicsRenderer
 from utils.db import connect_db
 
 connect_db()
-ren = ColorTextRenderer()
 
 
 class TelnetService:
@@ -35,12 +34,21 @@ class TelnetService:
             os.environ.get("MQTT_HOST"), os.environ.get("MQTT_PORT"), self.session
         ).client()
         self.session.mqtt_client.loop_start()
+        self.session.ren = TextGraphicsRenderer()
 
     def write_line(self, message, add_newline: bool = True):
         if not isinstance(message, list):
             message = [message]
         for msg in message:
-            self.session.writer.write(str(msg) + (ren.nl if add_newline else ""))
+            self.session.writer.write(str(msg) + (self.session.ren.nl if add_newline else ""))
+
+    def size(self):
+        # Set the window's session size.
+        self.session.size = [
+            self.session.writer.get_extra_info("cols"),
+            self.session.writer.get_extra_info("rows"),
+        ]
+        self.session.ren.resize(size=self.session.size)
 
     async def thread(self):
         try:
@@ -53,8 +61,11 @@ class TelnetService:
 
             line = ""
 
+            # Get and set the current size of the terminal
+            self.size()
+
             self.write_line(
-                RoomTextTemplate.get(self.session.character.room, self.session.character),
+                RoomTextTemplate(self.session).get(self.session.character.room, self.session.character),
                 add_newline=False
             )
 
@@ -71,11 +82,7 @@ class TelnetService:
                     self.session.mqtt_client.disconnect()
                     break
 
-                # Set the window's session size.
-                self.session.size = [
-                    self.session.writer.get_extra_info("cols"),
-                    self.session.writer.get_extra_info("rows"),
-                ]
+                self.size()
 
                 # Match against our control characters
                 match ord(char_input):
@@ -83,7 +90,7 @@ class TelnetService:
                         # Reload the character and show the Room text again
                         self.session.character.reload()
                         self.write_line(
-                            RoomTextTemplate.get(
+                            RoomTextTemplate(self.session).get(
                                 self.session.character.room, self.session.character
                             )
                         )
@@ -103,6 +110,9 @@ class TelnetService:
                         # Reload the character document to update any changes that have happened.
                         self.session.character.reload()
 
+                        if line == "":
+                            line = "look here"
+
                         # Add the line to the session history
                         self.session.input_history.append((line, datetime.now()))
 
@@ -112,7 +122,7 @@ class TelnetService:
                                 [
                                     ae.eraseLine,
                                     ae.cursorTo(0),
-                                    ren.ct(line, ren.color_theme.input),
+                                    self.session.ren.ct(line, self.session.ren.color_theme.input),
                                     Sty.reset,
                                 ]
                             ),
@@ -136,14 +146,14 @@ class TelnetService:
                                 self.session,
                             )
                         else:
-                            self.write_line(f"I'm sorry, I didn't understand that.{ren.nl}")
+                            self.write_line(f"I'm sorry, I didn't understand that.{self.session.ren.nl}")
 
                         # Clear the line and we start all over again
                         line = ""
                     case _:  # Any other character
                         char = str(char_input)
                         # Any other characters input be added to the line buffer
-                        self.session.writer.echo(ren.ct(char, ren.color_theme.inputActive))
+                        self.session.writer.echo(self.session.ren.ct(char, self.session.ren.color_theme.inputActive))
                         line += char
         finally:
             pass

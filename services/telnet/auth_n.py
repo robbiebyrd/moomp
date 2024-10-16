@@ -1,13 +1,9 @@
 from models.character import Character
 from services.authn import AuthNService
 from services.telnet.input import parse_input_type, input_line, select
-from templates.utils.text.color import ColorTextRenderer
 from utils.db import connect_db
 
 connect_db()
-
-renderer = ColorTextRenderer()
-ct = renderer.colorize
 
 autologin = ["wizard@yourhost.com", "wizard"]
 
@@ -26,7 +22,7 @@ async def login(session):
         if account is None:
             session.writer.write(
                 f"Your email address and password were not accepted. Please try again."
-                f" {renderer.nl}"
+                f" {session.ren.nl}"
             )
         else:
             break
@@ -38,7 +34,7 @@ async def login(session):
             session,
             options=[f"{x.name}" for x in characters],
             message="Select a Character: ",
-            colors=renderer.color_groups.get('brightness').get('darker')
+            colors=session.ren.color_groups.get('brightness').get('darker')
         )
 
         character_input = parse_input_type(character_input)
@@ -49,7 +45,7 @@ async def login(session):
 
         character = Character.objects(name=character_input, account=account).first()
         if character is None:
-            session.writer.write(f"I could not find that character. {renderer.nl}")
+            session.writer.write(f"I could not find that character. {session.ren.nl}")
         else:
             break
 
@@ -57,13 +53,13 @@ async def login(session):
     character.save()
 
     session.writer.write(
-        f"You are logged in as {character.display} ({character.name}).{renderer.nl}"
+        f"You are logged in as {character.display} ({character.name}).{session.ren.nl}"
     )
     return character
 
 
 def logout(session):
-    session.writer.write(f"Goodbye! {renderer.nl}")
+    session.writer.write(f"Goodbye! {session.ren.nl}")
     session.character.online = False
     session.character.save()
     session.mqtt_client.loop_stop()

@@ -5,9 +5,9 @@ from telnetlib3 import TelnetWriterUnicode, TelnetReaderUnicode
 
 from models.character import Character
 from models.instance import Instance
-from templates.utils.text.color import ColorTextRenderer
+from templates.utils.text.graphics import TextGraphicsRenderer
 
-renderer = ColorTextRenderer()
+renderer = TextGraphicsRenderer()
 
 
 class Session:
@@ -20,7 +20,7 @@ class Session:
 
 class TextSession(Session):
     input_history: list[(str, datetime)] = []
-    size: [int, int] = [renderer.row, renderer.col]
-    colors: dict[str, list[str]] = renderer.color_theme
+    size: [int, int] = None
     reader: TelnetReaderUnicode = None
     writer: TelnetWriterUnicode = None
+    ren: TextGraphicsRenderer = None

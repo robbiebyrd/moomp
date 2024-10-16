@@ -9,11 +9,10 @@ from models.room import Room, RoomUpdateDTO, RoomCreateDTO
 from services.portal import PortalService
 from utils.db import connect_db
 
+connect_db()
+
 
 class RoomService:
-
-    def __init__(self):
-        self._connection = connect_db()
 
     @staticmethod
     def get_by_id(room_id: str):
@@ -33,8 +32,7 @@ class RoomService:
         if Room.objects(name=room.name).first():
             raise ValueError("room exists")
 
-        room_obj = Room(**room.model_dump(exclude_none=True)).save()
-        return room_obj
+        return Room(**room.model_dump(exclude_none=True)).save()
 
     @classmethod
     def exits(cls, room_id: str):
@@ -97,14 +95,6 @@ class RoomService:
         return portal
 
     @classmethod
-    def to_text(cls, room_id: str):
-        this_room = Room.objects(id=room_id).first()
-        return f"""{this_room.name}\r\n
-        {this_room.description}\r\n
-        
-        """
-
-    @classmethod
     def exits_and_aliases(cls, room_id: str, lowercase: bool = True, filter_duplicates: bool = True, include_name:
     bool = True):
         room = Room.objects(id=room_id).first()
@@ -145,3 +135,6 @@ class RoomService:
                 return True, portal, portal.from_room
             elif direction in [x.lower() for x in portal.alias_from] and portal.reversible is True:
                 return False, portal, portal.to_room
+            elif direction == portal.name.lower():
+                rm = portal.to_room if room_id == portal.from_room else portal.from_room
+                return True, portal, rm

@@ -1,9 +1,6 @@
 from commands.base import Command
 from models.object import Object
 from services.session import TextSession
-from templates.utils.text.color import ColorTextRenderer
-
-renderer = ColorTextRenderer()
 
 
 class TakeCommand(Command):
@@ -50,17 +47,17 @@ class TakeCommand(Command):
 
         if command_prefix in cls.positive_command_prefixes:
             if len(command.strip()) == 0:
-                writer.write(cls.error_messages.get('error_no_subject').format(nl=renderer.nl))
+                writer.write(cls.error_messages.get('error_no_subject').format(nl=session.ren.nl))
 
             elif await cls.take(command, session):
-                writer.write(cls.error_messages.get('success').format(command=command, nl=renderer.nl))
+                writer.write(cls.error_messages.get('success').format(command=command, nl=session.ren.nl))
             else:
-                writer.write(cls.error_messages.get('error').format(command=command, nl=renderer.nl))
+                writer.write(cls.error_messages.get('error').format(command=command, nl=session.ren.nl))
         elif command_prefix in cls.negative_command_prefixes:
             if len(command.strip()) == 0:
-                writer.write(cls.error_messages.get('error_drop_no_subject').format(nl=renderer.nl))
+                writer.write(cls.error_messages.get('error_drop_no_subject').format(nl=session.ren.nl))
 
             if await cls.drop(command, session):
-                writer.write(cls.error_messages.get('success_drop').format(command=command, nl=renderer.nl))
+                writer.write(cls.error_messages.get('success_drop').format(command=command, nl=session.ren.nl))
             else:
-                writer.write(cls.error_messages.get('error_drop_possession').format(command=command, nl=renderer.nl))
+                writer.write(cls.error_messages.get('error_drop_possession').format(command=command, nl=session.ren.nl))

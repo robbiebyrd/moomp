@@ -502,7 +502,8 @@
     "columns": 80,
     "newline": "\\r\\n",
     "line_rule": [
-      "-"
+      "-",
+      80
     ],
     "space": " ",
     "box": {

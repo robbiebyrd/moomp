@@ -1,6 +1,6 @@
 from commands.base import Command
 from services.session import TextSession
-from services.telnet.telnet import TelnetService
+from services.telnet.auth_n import logout
 
 
 class LogoutCommand(Command):
@@ -8,5 +8,4 @@ class LogoutCommand(Command):
 
     @classmethod
     async def telnet(cls, reader, writer, mqtt_client, command: str, session: TextSession):
-        ts = TelnetService(None, reader, writer, session)
-        ts.logout(mqtt_client)
+        logout(session)
