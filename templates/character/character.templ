@@ -1,0 +1,4 @@
+$ren.box($ren.ct($character.name, $colors[1]), $color_list[0], center=True)
+In Room: $ren.list([$character.room.name], $colors[1])
+#if $len($character.inventory) > 0 #Inventory: $ren.list(list(map(lambda x: x.name, $character.inventory)), $color_list[1]) $ren.nl#end if##slurp
+$ren.lr

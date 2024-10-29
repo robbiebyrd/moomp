@@ -3,9 +3,11 @@ from operator import is_not
 
 from models.account import Account
 from models.character import Character
+from models.instance import Instance
 from models.object import Object
 from models.portal import Portal
 from models.room import Room
+from models.script import Script, ScriptType, ScriptTypes
 from services.authn import AuthNService
 
 
@@ -14,25 +16,35 @@ def description():
 
 
 def run():
+    instance_data = {
+        'name': 'Hereville',
+        'description': 'Hereville: A village that is here',
+        'properties': {
+            "msg_connect": 'You are connected to ${instance.name}.'
+        }
+    }
+
+    if not Instance.objects(name=instance_data.get("name")):
+        Instance(**instance_data).save()
+
+    instance = Instance.objects(name=instance_data.get("name")).first()
+
     account_array = [
         {
             "email": "wizard@yourhost.com",
             "password": AuthNService.encrypt_password("wizard"),
-        },
-        {
-            "email": "programmer@yourhost.com",
-            "password": AuthNService.encrypt_password("programmer"),
+            "instance": instance
         },
     ]
 
     account_instances = list(
         filter(
             partial(is_not, None),
-            [Account(**data) if not Account.objects(email=data.get("email")) else None for data in account_array],
+            [None if Account.objects(email=data.get("email")) else Account(**data) for data in account_array],
         )
     )
 
-    if len(account_instances) > 0:
+    if account_instances:
         Account.objects.insert(account_instances, load_bulk=False)
 
     character_array = [
@@ -42,34 +54,16 @@ def run():
             "visible": True,
             "account": Account.objects(email="wizard@yourhost.com").first(),
         },
-        {
-            "name": "Architect",
-            "display": "The Architect",
-            "visible": True,
-            "account": Account.objects(email="wizard@yourhost.com").first(),
-        },
-        {
-            "name": "Builder",
-            "display": "The Builder",
-            "visible": True,
-            "account": Account.objects(email="wizard@yourhost.com").first(),
-        },
-        {
-            "name": "Programmer",
-            "display": "The Programmer",
-            "visible": True,
-            "account": Account.objects(email="programmer@yourhost.com").first(),
-        },
     ]
 
     character_instances = list(
         filter(
             partial(is_not, None),
-            [Character(**data) if not Character.objects(name=data.get("name")) else None for data in character_array],
+            [None if Character.objects(name=data.get("name")) else Character(**data) for data in character_array],
         )
     )
 
-    if len(character_instances) > 0:
+    if character_instances:
         Character.objects.insert(character_instances, load_bulk=False)
 
     the_prog = Character.objects(name="Programmer").first()
@@ -95,11 +89,11 @@ def run():
     room_instances = list(
         filter(
             partial(is_not, None),
-            [Room(**data) if not Room.objects(name=data.get("name"), owner=the_wiz) else None for data in room_array],
+            [None if Room.objects(name=data.get("name"), owner=the_wiz) else Room(**data) for data in room_array],
         )
     )
 
-    if len(room_instances) > 0:
+    if room_instances:
         Room.objects.insert(room_instances, load_bulk=False)
 
     nowhere = Room.objects(name="Nowhere").first()
@@ -118,15 +112,6 @@ def run():
             visible=True,
             reversible=True,
         )
-    if not Object.objects(name="Atom", owner=the_wiz):
-        Object.objects.create(
-            owner=the_wiz,
-            name="Atom",
-            description="An atom of a mysterious put powerful element.",
-            visible=False,
-            holder=the_wiz,
-            properties={"locked": True},
-        )
 
     if not Object.objects(name="An Apple", owner=the_wiz):
         Object.objects.create(
@@ -140,11 +125,17 @@ def run():
         )
 
     the_wiz.room = nowhere
-    the_prog.room = lobby
-    the_builder.room = lobby
-    the_architect.room = lobby
 
     the_wiz.save()
-    the_prog.save()
-    the_builder.save()
-    the_architect.save()
+
+    Script.objects.update_one(
+        owner=the_wiz,
+        name='test_script',
+        scripts=[ScriptType(
+            type=ScriptTypes.Character,
+            script='''function(character, inventory, room, nearby, account, exits)
+            return character, inventory, room, nearby, account, exits
+        end'''
+        )],
+        attached=[the_wiz, the_prog, the_builder, the_architect]
+    )

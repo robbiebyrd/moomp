@@ -7,8 +7,7 @@ class PortalService:
 
     @staticmethod
     def create(portal: PortalCreateDTO):
-        portal_obj = Portal(**portal.model_dump(exclude_none=True)).save()
-        return portal_obj
+        return Portal(**portal.model_dump(exclude_none=True)).save()
 
     @staticmethod
     def get_by_id(portal_id: str) -> Portal:

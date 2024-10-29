@@ -7,8 +7,7 @@ from pluralizer import Pluralizer
 from commands.base import Command
 from models.speech import Speech
 from services.portal import PortalService
-from services.telnet import TelnetService
-from services.telnet import TextSession
+from services.telnet.telnet import TextSession
 
 
 class SayCommand(Command):
@@ -18,7 +17,7 @@ class SayCommand(Command):
     @classmethod
     async def notify(cls, document: Speech, session: "TextSession"):
         # Make a shallow copy of the document object for filtering.
-        doc = json.loads(document.to_json())
+        doc = json.loads(document.to_json(use_db_field=False))
 
         messages = ([
                         {
@@ -33,13 +32,15 @@ class SayCommand(Command):
                     ]
                     )
 
-        publish.multiple(messages,
-                         hostname=os.environ.get("MQTT_HOST"),
-                         port=int(os.environ.get("MQTT_PORT")),
-                         )
+        publish.multiple(
+            messages,
+            hostname=os.environ.get("MQTT_HOST", "mqtt"),
+            port=int(os.environ.get("MQTT_PORT", 1883))
+        )
 
     @classmethod
     async def telnet(cls, reader, writer, mqtt_client, command: str, session: "TextSession"):
+        command = command.strip()
         prefix = cls.get_command_prefix(command)
         if not command.startswith("'") or not command.startswith('"'):
             command = cls.get_arguments(command)
@@ -75,7 +76,7 @@ class SayCommand(Command):
                 await cls.notify(speech, session)
             case _:
                 if len(command) == 0:
-                    TelnetService.write_line(writer, "You mumble incoherently.")
+                    writer.write("You mumble incoherently.")
                 else:
                     speech = Speech.objects.create(
                         speaker=session.character,

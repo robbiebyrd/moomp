@@ -1,3 +1,5 @@
+from itertools import chain
+
 from mongoengine.queryset.visitor import Q
 
 from models.character import Character
@@ -7,11 +9,10 @@ from models.room import Room, RoomUpdateDTO, RoomCreateDTO
 from services.portal import PortalService
 from utils.db import connect_db
 
+connect_db()
+
 
 class RoomService:
-
-    def __init__(self):
-        self._connection = connect_db()
 
     @staticmethod
     def get_by_id(room_id: str):
@@ -31,8 +32,7 @@ class RoomService:
         if Room.objects(name=room.name).first():
             raise ValueError("room exists")
 
-        room_obj = Room(**room.model_dump(exclude_none=True)).save()
-        return room_obj
+        return Room(**room.model_dump(exclude_none=True)).save()
 
     @classmethod
     def exits(cls, room_id: str):
@@ -43,10 +43,11 @@ class RoomService:
         objects_query = (Q(room=room_id) & Q(visible=True)) if show_hidden else Q(room=room_id)
         characters_query = (
                 Q(room=room_id)
-                & (Q(online=True) if not show_offline else None)
-                & (Q(visible=True) if not show_offline else None)
+                & (None if show_offline else Q(online=True))
+                & (None if show_offline else Q(visible=True))
         )
-        return {"objects": Object.objects(objects_query), "characters": Character.objects(characters_query)}
+        return {"objects": Object.objects(objects_query), "characters": Character.objects(characters_query),
+                'exits': cls.exits(room_id)}
 
     @classmethod
     def update(cls, room: RoomUpdateDTO):
@@ -94,9 +95,48 @@ class RoomService:
         return portal
 
     @classmethod
-    def to_text(cls, room_id: str):
-        this_room = Room.objects(id=room_id).first()
-        return f"""{this_room.name}\r\n
-        {this_room.description}\r\n
-        
-        """
+    def exits_and_aliases(cls, room_id: str, lowercase: bool = True, filter_duplicates: bool = True, include_name:
+    bool = True):
+        room = Room.objects(id=room_id).first()
+        exits = []
+
+        for exit_item in RoomService.exits(room_id=room.id):
+            exits = exits + list(chain(*cls.exits_with_aliases(room.id).values()))
+            if include_name:
+                exits.append(exit_item.name)
+
+        if lowercase:
+            exits = [x.lower() for x in exits]
+        if filter_duplicates:
+            exits = list(set(exits))
+
+        return exits
+
+    @classmethod
+    def exits_with_aliases(cls, room_id: str):
+        room = Room.objects(id=room_id).first()
+        return {
+            exit_item.name: (
+                exit_item.alias_from
+                if exit_item.to_room.id == room.id
+                else exit_item.alias_to
+            )
+            for exit_item in RoomService.exits(room_id=room.id)
+        }
+
+    @classmethod
+    def resolve_alias(cls, room_id: str, direction: str):
+        room = Room.objects(id=room_id).first()
+        portals = PortalService.get_by_room(room.id)
+        direction = direction.lower()
+
+        for portal in portals:
+            if direction in [x.lower() for x in portal.alias_to] and portal.to_room.id != room_id:  # and
+                return True, portal, portal.to_room
+            elif (direction in [x.lower() for x in portal.alias_from] and portal.reversible is True and
+                  portal.from_room.id != room_id):
+                return False, portal, portal.from_room
+            elif direction.lower() == portal.name.lower():
+                return True, portal, portal.to_room if room_id == portal.from_room.id else portal.from_room
+
+        return False, None, room

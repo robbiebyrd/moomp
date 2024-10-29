@@ -1,36 +1,40 @@
+from datetime import datetime
+
 from mongoengine import (
     Document,
     ReferenceField,
     StringField,
     BooleanField,
     DictField,
-    SequenceField,
+    SequenceField, DateTimeField,
 )
 from pydantic import BaseModel
 
 from models.account import Account
+from models.object import Object
 from models.room import Room
 
 
 class Character(Document):
     meta = {"collection": "characters"}
+    cId = SequenceField(db_field="c")
+    created_at = DateTimeField(required=True, default=datetime.now)
 
-    cId = SequenceField()
-    account = ReferenceField(Account, db_field="_accountId")
-
-    # The "location" of the current user.
-    room = ReferenceField(Room, db_field="_roomId")
-
-    name = StringField(required=True, regex="^[a-zA-Z0-9]{1,100}$")
+    name = StringField(required=True, regex="^[a-zA-Z0-9]{1,100}$", unique=True)
     display = StringField(required=True)
+    description = StringField()
 
     online = BooleanField(default=False)
+    visible = BooleanField()
 
-    description = StringField()
+    account = ReferenceField(Account, db_field="_accountId")
+    room = ReferenceField(Room, db_field="_roomId")
 
     properties = DictField()
 
-    visible = BooleanField()
+    @property
+    def inventory(self):
+        return Object.objects(holder=self)
 
 
 class CharacterCreateDTO(BaseModel):
@@ -41,4 +45,4 @@ class CharacterCreateDTO(BaseModel):
 
 class CharacterUpdateDTO(BaseModel):
     display: str | None = None
-    visible: bool | None = None
+    name: str | None = None

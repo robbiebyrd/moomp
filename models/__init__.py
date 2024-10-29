@@ -1,1 +1,10 @@
-__all__ = ["account", "character", "events", "object", "portal", "room"]
+__all__ = [
+    "account",
+    "character",
+    "events",
+    "object",
+    "portal",
+    "room",
+    "script",
+    "speech"
+]

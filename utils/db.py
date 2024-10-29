@@ -8,7 +8,7 @@ def connect_db():
         "username": os.environ.get('MONGODB_USER', 'root'),
         "password": os.environ.get('MONGODB_PASS', 'moomoomoo'),
         "authentication_source": os.environ.get('MONGODB_AUTHDB', 'admin'),
-        "host": os.environ.get('MONGODB_HOST', '127.0.0.0.1'),
+        "host": os.environ.get('MONGODB_HOST', 'moomp'),
         "port": int(os.environ.get('MONGODB_PORT', 27017))
     }
-    return connect(os.environ.get('MONGODB_NAME'), **connection_params)
+    return connect(os.environ.get('MONGODB_NAME', 'moomp'), **connection_params)

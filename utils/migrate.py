@@ -6,10 +6,10 @@ import migrations
 from utils.db import connect_db
 
 logger = logging.getLogger(__name__)
+connect_db()
 
 
 def migrate():
-    connect_db()
     migrations.__all__.sort()
 
     for module_path in migrations.__all__:

@@ -14,8 +14,7 @@ from pydantic import BaseModel
 
 class Speech(Document):
     meta = {"collection": "speech"}
-
-    cId = SequenceField()
+    cId = SequenceField(db_field="c")
 
     speaker = ReferenceField("Character", required=True, db_field="_ownerId")
     created_at = DateTimeField(required=True, default=datetime.now)
