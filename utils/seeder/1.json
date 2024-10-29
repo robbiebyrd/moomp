@@ -1,0 +1,373 @@
+{
+  "instances": [
+    {
+      "name": "Hereville",
+      "description": "Hereville: A village that is here",
+      "properties": {
+        "msg_connect": "You are connected to ${instance.name}."
+      }
+    }
+  ],
+  "accounts": [
+    {
+      "email": "wizard@yourhost.com",
+      "password": "wizard",
+      "instance": "Hereville"
+    },
+    {
+      "email": "programmer@yourhost.com",
+      "password": "programmer",
+      "instance": "Hereville"
+    }
+  ],
+  "characters": [
+    {
+      "name": "Wizard",
+      "display": "The Wizard",
+      "visible": 1,
+      "account": "wizard@yourhost.com"
+    },
+    {
+      "name": "Architect",
+      "display": "The Architect",
+      "visible": 1,
+      "account": "wizard@yourhost.com"
+    },
+    {
+      "name": "Builder",
+      "display": "The Builder",
+      "visible": 1,
+      "account": "wizard@yourhost.com"
+    },
+    {
+      "name": "Programmer",
+      "display": "The Programmer",
+      "visible": 1,
+      "account": "programmer@yourhost.com"
+    }
+  ],
+  "rooms": [
+    {
+      "name": "Main Entrance",
+      "description": "The Main Entrance.",
+      "visible": 1,
+      "owner": "Wizard"
+    },
+    {
+      "name": "The Gathering Hall",
+      "description": "A spacious common area with comfortable seating, perfect for socializing or relaxing.",
+      "visible": 1,
+      "owner": "Wizard"
+    },
+    {
+      "name": "The Dining Room",
+      "description": "A communal dining space where guests can enjoy homemade meals and breakfast together.",
+      "visible": 1,
+      "owner": "Wizard"
+    },
+    {
+      "name": "The Game Room",
+      "description": "Filled with board games, puzzles, and a pool table for entertainment.",
+      "visible": 1,
+      "owner": "Wizard"
+    },
+    {
+      "name": "The Sky Lounge",
+      "description": "An open-air rooftop lounge with stunning views, perfect for evening gatherings.",
+      "visible": 1,
+      "owner": "Wizard"
+    },
+    {
+      "name": "The Observation Deck",
+      "description": "A serene space for stargazing, equipped with telescopes and cozy seating.",
+      "visible": 1,
+      "owner": "Wizard"
+    },
+    {
+      "name": "The Wellness Spa",
+      "description": "A tranquil area for relaxation, featuring massage chairs, aromatherapy, and soft music.",
+      "visible": 1,
+      "owner": "Wizard"
+    },
+    {
+      "name": "The Pool Area",
+      "description": "An inviting outdoor space with a swimming pool, sun loungers, and tropical plants.",
+      "visible": 1,
+      "owner": "Wizard"
+    },
+    {
+      "name": "The Art Studio",
+      "description": "A creative space filled with art supplies, easels, and inspiration for guests.",
+      "visible": 1,
+      "owner": "Wizard"
+    },
+    {
+      "name": "The Reading Nook",
+      "description": "A quiet corner with comfortable chairs and a variety of books for guests to enjoy.",
+      "visible": 1,
+      "owner": "Wizard"
+    },
+    {
+      "name": "The Cultural Lounge",
+      "description": "A room dedicated to showcasing local art, music, and culture, often hosting workshops.",
+      "visible": 1,
+      "owner": "Wizard"
+    },
+    {
+      "name": "The Yoga Studio",
+      "description": "A peaceful room for yoga and meditation classes, with mats and calming decor.",
+      "visible": 1,
+      "owner": "Wizard"
+    },
+    {
+      "name": "The Fire Pit Area",
+      "description": "An outdoor gathering space with a fire pit, perfect for storytelling and roasting marshmallows.",
+      "visible": 1,
+      "owner": "Wizard"
+    },
+    {
+      "name": "The Pool Bar",
+      "description": "An outdoor bar with every type of imaginable frozen drink at hand.",
+      "visible": 1,
+      "owner": "Wizard"
+    },
+    {
+      "name": "The Twilight Lounge",
+      "description": "A cozy, dimly lit space perfect for relaxing with a drink and enjoying conversations.",
+      "visible": 1,
+      "owner": "Wizard"
+    },
+    {
+      "name": "Lavender Loft",
+      "description": "A cozy room adorned with soft purple hues, fragrant lavender plants, and a small balcony overlooking the garden. Features a queen bed, a writing desk, and an en-suite bathroom.",
+      "visible": 1,
+      "owner": "Wizard"
+    },
+    {
+      "name": "Ocean Breeze Suite",
+      "description": "A spacious suite with nautical decor, large windows letting in natural light, and a small kitchenette. Contains a king bed and a private terrace.",
+      "visible": 1,
+      "owner": "Wizard"
+    },
+    {
+      "name": "Rustic Retreat",
+      "description": "A charming room featuring reclaimed wood furniture and earthy tones, with a focus on comfort. Includes a double bed and a shared bathroom.",
+      "visible": 1,
+      "owner": "Wizard"
+    },
+    {
+      "name": "Starlit Serenity",
+      "description": "A serene room designed for stargazing, complete with a skylight and dark blue accents. Contains a queen bed and a small seating area.",
+      "visible": 1,
+      "owner": "Wizard"
+    },
+    {
+      "name": "Sunny Meadow Room",
+      "description": "Bright and cheerful, with yellow accents and floral decorations. This room has two twin beds and access to a shared bathroom.",
+      "visible": 1,
+      "owner": "Wizard"
+    },
+    {
+      "name": "Mystic Forest Cabin",
+      "description": "Inspired by woodland charm, this room features nature-themed decor and a queen bed. Offers a tranquil atmosphere for relaxation.",
+      "visible": 1,
+      "owner": "Wizard"
+    },
+    {
+      "name": "Vintage Vibes Room",
+      "description": "A nostalgic room with retro furnishings, including a record player and vintage artwork. Contains a double bed and a shared bathroom.",
+      "visible": 1,
+      "owner": "Wizard"
+    },
+    {
+      "name": "Mountain View Haven",
+      "description": "A calming room with earthy tones and large windows that provide stunning mountain views. Features a king bed and a private balcony.",
+      "visible": 1,
+      "owner": "Wizard"
+    },
+    {
+      "name": "Tropical Oasis Room",
+      "description": "A vibrant room with palm fronds and colorful accents. Includes a queen bed and a small reading corner.",
+      "visible": 1,
+      "owner": "Wizard"
+    },
+    {
+      "name": "Cultural Canvas Room",
+      "description": "A creatively decorated room showcasing local art, with a double bed and an artistic vibe. Perfect for inspiration.",
+      "visible": 1,
+      "owner": "Wizard"
+    },
+    {
+      "name": "Zen Den",
+      "description": "A minimalist room designed for tranquility, featuring a meditation corner and soft neutral colors. Includes a queen bed and an en-suite bathroom.",
+      "visible": 1,
+      "owner": "Wizard"
+    },
+    {
+      "name": "Breezy Terrace Room",
+      "description": "A light-filled room with large sliding doors that open onto a spacious terrace. Contains a king bed and a small dining area.",
+      "visible": 1,
+      "owner": "Wizard"
+    },
+    {
+      "name": "Enchanting Evening Room",
+      "description": "A romantic room with dim lighting, fairy lights, and plush furnishings. Features a queen bed and an intimate seating area.",
+      "visible": 1,
+      "owner": "Wizard"
+    },
+    {
+      "name": "Herbal Haven",
+      "description": "A fragrant room filled with various herbs and plants, promoting a natural, calming environment. Contains a double bed and a shared bathroom.",
+      "visible": 1,
+      "owner": "Wizard"
+    },
+    {
+      "name": "Whimsical Workshop",
+      "description": "A creative space equipped with art supplies and crafting materials. Great for guests wanting to unleash their artistic side.",
+      "visible": 1,
+      "owner": "Wizard"
+    },
+    {
+      "name": "Front Desk",
+      "description": "The Front Desk. A counter and a broken bell are here.",
+      "visible": 1,
+      "owner": "Wizard"
+    },
+    {
+      "name": "Coat Closet",
+      "description": "A small coat closet.",
+      "visible": 1,
+      "owner": "Wizard"
+    }
+  ],
+  "portals": [
+    {
+      "owner": "Wizard",
+      "from_room": "The Gathering Hall",
+      "to_room": "The Dining Room",
+      "name": "Wooden Door",
+      "alias_from": [
+        "s"
+      ],
+      "alias_to": [
+        "n"
+      ],
+      "description_from": "A wooden door that opens into The Dining Room.",
+      "description_to": "A wooden door that opens into The Gathering Hall.",
+      "visible": 1,
+      "reversible": 1
+    },
+    {
+      "owner": "Wizard",
+      "from_room": "The Gathering Hall",
+      "to_room": "The Wellness Spa",
+      "name": "Glass Door",
+      "alias_from": [
+        "w"
+      ],
+      "alias_to": [
+        "e"
+      ],
+      "description_from": "A glass door that opens into The Wellness Spa.",
+      "description_to": "A glass door that opens into The Gathering Hall.",
+      "visible": 1,
+      "reversible": 1
+    },
+    {
+      "owner": "Wizard",
+      "from_room": "The Wellness Spa",
+      "to_room": "The Yoga Studio",
+      "name": "Sliding Glass Door",
+      "alias_from": [
+        "s"
+      ],
+      "alias_to": [
+        "n"
+      ],
+      "description_from": "A sliding glass door that opens into The Wellness Spa.",
+      "description_to": "A sliding glass door that opens into The Yoga Studio.",
+      "visible": 1,
+      "reversible": 1
+    },
+    {
+      "owner": "Wizard",
+      "from_room": "Front Desk",
+      "to_room": "The Gathering Hall",
+      "name": "Wooden Door",
+      "alias_to": [
+        "s"
+      ],
+      "alias_from": [
+        "n"
+      ],
+      "description_from": "A wooden door that opens into The Dining Room.",
+      "description_to": "A wooden door that opens into The Gathering Hall.",
+      "visible": 1,
+      "reversible": 1
+    },
+    {
+      "owner": "Wizard",
+      "from_room": "Main Entrance",
+      "to_room": "Front Desk",
+      "name": "Entryway",
+      "alias_to": [
+        "e"
+      ],
+      "alias_from": [
+        "w"
+      ],
+      "description_from": "A large entryway.",
+      "description_to": "A large entryway.",
+      "visible": 1,
+      "reversible": 1
+    },
+    {
+      "owner": "Wizard",
+      "from_room": "Front Desk",
+      "to_room": "Coat Closet",
+      "name": "Small Door",
+      "alias_to": [
+        "e"
+      ],
+      "alias_from": [
+        "w"
+      ],
+      "description_from": "A wooden door that opens into a Coat Closet.",
+      "description_to": "A wooden door that opens into The Front Desk.",
+      "visible": 1,
+      "reversible": 1
+    },
+    {
+      "owner": "Wizard",
+      "from_room": "The Gathering Hall",
+      "to_room": "The Reading Nook",
+      "name": "Wooden Door",
+      "alias_to": [
+        "w"
+      ],
+      "alias_from": [
+        "e"
+      ],
+      "description_from": "A wooden door that opens into The Gathering Hall.",
+      "description_to": "A wooden door that opens into The Reading Nook.",
+      "visible": 1,
+      "reversible": 1
+    },
+    {
+      "owner": "Wizard",
+      "from_room": "The Reading Nook",
+      "to_room": "The Art Studio",
+      "name": "Wooden Door",
+      "alias_to": [
+        "w"
+      ],
+      "alias_from": [
+        "e"
+      ],
+      "description_from": "A wooden door that opens into The Reading Nook.",
+      "description_to": "A wooden door that opens into The Art Studio.",
+      "visible": 1,
+      "reversible": 1
+    }
+  ]
+}

@@ -8,6 +8,7 @@ from colored import Style as Sty
 
 from commands import base
 from models.instance import Instance
+from models.room import Room
 from services.mqtt import MQTTService
 from services.room import RoomService
 from services.session import TextSession
@@ -63,6 +64,10 @@ class TelnetService:
 
             # Get and set the current size of the terminal
             self.size()
+
+            if self.session.character.room is None:
+                self.session.character.room = Room.objects().first()
+                self.session.character.save()
 
             self.write_line(
                 RoomTextTemplate(self.session).get(self.session.character.room, self.session.character),
@@ -146,7 +151,7 @@ class TelnetService:
                                 self.session,
                             )
                         else:
-                            self.write_line(f"I'm sorry, I didn't understand that.{self.session.ren.nl}")
+                            self.session.writer.write(f"I'm sorry, I didn't understand that.{self.session.ren.nl}")
 
                         # Clear the line and we start all over again
                         line = ""
@@ -160,11 +165,8 @@ class TelnetService:
 
     @classmethod
     def command_is_an_exit(cls, line, session):
-        return not cls.commands(
-            line
-        ) and line.strip().lower() in RoomService.exits_and_aliases(
-            session.character.room.id, True, True
-        )
+        return not cls.commands(line) and line.strip().lower() in RoomService.exits_and_aliases(
+            session.character.room.id)
 
     @staticmethod
     def commands(line: str):

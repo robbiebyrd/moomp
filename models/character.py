@@ -20,7 +20,7 @@ class Character(Document):
     cId = SequenceField(db_field="c")
     created_at = DateTimeField(required=True, default=datetime.now)
 
-    name = StringField(required=True, regex="^[a-zA-Z0-9]{1,100}$")
+    name = StringField(required=True, regex="^[a-zA-Z0-9]{1,100}$", unique=True)
     display = StringField(required=True)
     description = StringField()
 
@@ -45,4 +45,4 @@ class CharacterCreateDTO(BaseModel):
 
 class CharacterUpdateDTO(BaseModel):
     display: str | None = None
-    visible: bool | None = None
+    name: str | None = None

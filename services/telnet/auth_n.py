@@ -1,17 +1,18 @@
 from models.character import Character
 from services.authn import AuthNService
 from services.telnet.input import parse_input_type, input_line, select
+from templates.utils.authn.authn import AuthNUtils
 from utils.db import connect_db
 
 connect_db()
 
+# TODO: THIS IS ONLY FOR TESTING PURPOSES
 autologin = ["wizard@yourhost.com", "wizard"]
+config = AuthNUtils().config
 
 
 async def login(session):
-    while (
-            True
-    ):  # This should be a count. We should error out after x number of login tries
+    for tries in range(5):
         if autologin:
             account = AuthNService.authorize(*autologin)
         else:
@@ -19,13 +20,19 @@ async def login(session):
             password = await input_line(session, "Password: ", "*", on_new_line=False)
             account = AuthNService.authorize(email, password)
 
-        if account is None:
-            session.writer.write(
-                f"Your email address and password were not accepted. Please try again."
-                f" {session.ren.nl}"
-            )
-        else:
+        if account:
             break
+
+        session.writer.write(
+            f"Your email address and password were not accepted. Please try again."
+            f" {session.ren.nl}"
+        )
+    else:
+        session.writer.write(
+            f"You are being disconnected after {tries} unsuccessful login attempts."
+            f" {session.ren.nl}"
+        )
+        logout(session)
 
     while True:
         characters = AuthNService.characters(account)
@@ -64,33 +71,3 @@ def logout(session):
     session.character.save()
     session.mqtt_client.loop_stop()
     session.writer.close()
-
-# async def register(self):
-#     while True:
-#         email_input = await self.input_line("Email Address: ")
-#         already_emails = Character.objects(email=email_input)
-#         if len(already_emails) > 0:
-#             session.writer.write("That email address is already taken, please try another one.")
-#             continue
-#         break
-#
-#     while True:
-#         character_name_input = await self.input_line("Username: ", required=True, on_new_line=True)
-#         already_character_name = Character.objects(name=character_name_input)
-#         if len(already_character_name) > 0:
-#             session.writer.write("That character name is already taken, please try another one.")
-#             continue
-#         break
-#
-#     password_input = await self.input_line("Password: ", mask_character="*")
-#     display_name_input = await self.input_line("Display Name: ")
-#
-#     char = CharacterService.register(
-#         user=CharacterCreateDTO(
-#             name=character_name_input,
-#             display=display_name_input,
-#             password=password_input,
-#             email=email_input,
-#         )
-#     )
-#     return char

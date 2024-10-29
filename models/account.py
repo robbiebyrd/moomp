@@ -35,3 +35,9 @@ class AccountCreateDTO(BaseModel):
 class AccountUpdateDTO(BaseModel):
     name: str | None = None
     email: str | None = None
+
+
+class AccountPasswordUpdateDTO(BaseModel):
+    email: str
+    current_password: str
+    new_password: str

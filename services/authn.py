@@ -1,37 +1,51 @@
 import hashlib
+import re
 
 import bcrypt
 
 from models.account import Account
 from models.character import Character
+from templates.utils.authn.authn import AuthNUtils
 from utils.db import connect_db
+
+connect_db()
 
 
 class AuthNService:
 
     def __init__(self):
-        self._connection = connect_db()
+        self._config = AuthNUtils().config
 
-    @classmethod
-    def authorize(cls, email: str, password: str):
+    @staticmethod
+    def authorize(email: str, password: str):
         if email and password:
             account = Account.objects(email=email).first()
             if account is not None:
                 return account if bcrypt.checkpw(password.encode("utf-8"), account.password.encode("utf-8")) else None
 
-    @classmethod
-    def characters(cls, account: Account):
+    @staticmethod
+    def characters(account: Account):
         if account:
             return Character.objects(account=account).all()
 
-    @classmethod
-    def password(cls, username: str, new_password: str):
+    @staticmethod
+    def password(username: str, new_password: str):
         if not username or not new_password:
             return False
         char = Character.objects(name=username).first()
         char.update(password=hashlib.sha256(new_password.encode("utf-8")).hexdigest())
         return True
 
+    def email_policy(self, email: str):
+        return email.split('@')[-1] not in self._config.disallowed_domains
+
+    def password_policy(self, password: str, policy_group: str = "default"):
+        return all(
+            re.search(re.compile(policy_check), password)
+            for policy_check in [self._config.password_policies[policy] for policy in
+                                 self._config.password_policy_groups.get(policy_group)]
+        )
+
     @staticmethod
     def encrypt_password(password: str):
-        return bcrypt.hashpw(str.encode(password), bcrypt.gensalt())
+        return bcrypt.hashpw(str.encode(password), bcrypt.gensalt()).decode("utf-8")
