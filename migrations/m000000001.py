@@ -35,11 +35,6 @@ def run():
             "password": AuthNService.encrypt_password("wizard"),
             "instance": instance
         },
-        {
-            "email": "programmer@yourhost.com",
-            "password": AuthNService.encrypt_password("programmer"),
-            "instance": instance
-        },
     ]
 
     account_instances = list(
@@ -58,24 +53,6 @@ def run():
             "display": "The Wizard",
             "visible": True,
             "account": Account.objects(email="wizard@yourhost.com").first(),
-        },
-        {
-            "name": "Architect",
-            "display": "The Architect",
-            "visible": True,
-            "account": Account.objects(email="wizard@yourhost.com").first(),
-        },
-        {
-            "name": "Builder",
-            "display": "The Builder",
-            "visible": True,
-            "account": Account.objects(email="wizard@yourhost.com").first(),
-        },
-        {
-            "name": "Programmer",
-            "display": "The Programmer",
-            "visible": True,
-            "account": Account.objects(email="programmer@yourhost.com").first(),
         },
     ]
 
@@ -135,15 +112,6 @@ def run():
             visible=True,
             reversible=True,
         )
-    if not Object.objects(name="Atom", owner=the_wiz):
-        Object.objects.create(
-            owner=the_wiz,
-            name="Atom",
-            description="An atom of a plain, yet immensely powerful, element.",
-            visible=False,
-            holder=the_wiz,
-            properties={"locked": True},
-        )
 
     if not Object.objects(name="An Apple", owner=the_wiz):
         Object.objects.create(
@@ -157,14 +125,8 @@ def run():
         )
 
     the_wiz.room = nowhere
-    the_prog.room = lobby
-    the_builder.room = lobby
-    the_architect.room = lobby
 
     the_wiz.save()
-    the_prog.save()
-    the_builder.save()
-    the_architect.save()
 
     Script.objects.update_one(
         owner=the_wiz,

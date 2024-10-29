@@ -1,4 +1,5 @@
 from datetime import datetime
+from typing import Union
 
 import paho.mqtt.client
 from telnetlib3 import TelnetWriterUnicode, TelnetReaderUnicode
@@ -11,16 +12,16 @@ renderer = TextGraphicsRenderer()
 
 
 class Session:
-    character: Character
-    instance: Instance
+    character: Character | None = None
+    instance: Instance | None = None
     created: datetime = datetime.now()
+    mqtt_client: Union[paho.mqtt.client, None]
     message_topics: [str] = []
-    mqtt_client: paho.mqtt.client
 
 
 class TextSession(Session):
-    input_history: list[(str, datetime)] = []
     size: [int, int] = None
     reader: TelnetReaderUnicode = None
     writer: TelnetWriterUnicode = None
     ren: TextGraphicsRenderer = None
+    input_history: list[(str, datetime)] = []

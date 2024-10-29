@@ -12,13 +12,14 @@ ENV PYTHONFAULTHANDLER=1 \
   POETRY_HOME='/usr/local' \
   POETRY_VERSION=1.8.4
 
-RUN curl -sSL https://install.python-poetry.org | python3 -
-
 WORKDIR /app
-COPY poetry.lock pyproject.toml /app/
 
+RUN curl -sSL https://install.python-poetry.org | python3 -
+COPY poetry.lock pyproject.toml /app/
 RUN poetry install --no-interaction --no-ansi
 
+COPY docker/entrypoint.sh /app/
+RUN chmod +x /app/entrypoint.sh
+
 COPY . /app
-ENTRYPOINT ["python3", "main", "migrate"]
-ENTRYPOINT ["python3", "main.py", "telnet", "Hereville"]
+ENTRYPOINT "./entrypoint.sh"
