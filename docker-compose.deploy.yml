@@ -1,27 +1,36 @@
 name: moomp
 
 services:
+  telnet:
+    restart: always
+    env_file: ".env.deploy"
+    build:
+      dockerfile: Dockerfile
+    ports:
+      - ${TELNET_PORT}:${TELNET_PORT}
+    networks:
+      - moomp
+
   mongo:
     image: mongo
     restart: always
-    env_file: ".env"
-    stdin_open: true
-    tty: true
+    env_file: ".env.deploy"
     environment:
       MONGO_INITDB_ROOT_USERNAME: ${MONGODB_USER}
       MONGO_INITDB_ROOT_PASSWORD: ${MONGODB_PASS}
-    ports:
-      - ${MONGODB_PORT}:${MONGODB_PORT}
+    networks:
+      - moomp
 
   mqtt:
     image: eclipse-mosquitto
     restart: always
-    env_file: ".env"
-    stdin_open: true
-    tty: true
-    ports:
-      - ${MQTT_PORT}:${MQTT_PORT}
+    env_file: ".env.deploy"
     volumes:
       - ./docker/mosquitto/mosquitto.conf:/mosquitto/config/mosquitto.conf
       - /docker/mosquitto/data
       - /docker/mosquitto/log
+    networks:
+      - moomp
+
+networks:
+  moomp:

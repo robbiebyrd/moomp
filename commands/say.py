@@ -32,10 +32,11 @@ class SayCommand(Command):
                     ]
                     )
 
-        publish.multiple(messages,
-                         hostname=os.environ.get("MQTT_HOST"),
-                         port=int(os.environ.get("MQTT_PORT")),
-                         )
+        publish.multiple(
+            messages,
+            hostname=os.environ.get("MQTT_HOST", "mqtt"),
+            port=int(os.environ.get("MQTT_PORT", 1883))
+        )
 
     @classmethod
     async def telnet(cls, reader, writer, mqtt_client, command: str, session: "TextSession"):

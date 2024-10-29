@@ -61,10 +61,17 @@ class CharacterService:
         self._character = Character.objects(name=self._character.name).first()
 
     @classmethod
-    def move(cls, character_id: str, direction: str):
+    def move(cls, character_id: str, direction: str) -> None:
         character = Character.objects(id=character_id).first()
         exiting_room = character.room
-        a, b, character.room = RoomService.resolve_alias(character.room.id, direction)
+
+        _, _, entering_room = RoomService.resolve_alias(character.room.id, direction)
+
+        if entering_room is None:
+            return
+
+        character.room = entering_room
+
         notify_and_create_event("Room", exiting_room, "Exited", character)
         notify_and_create_event("Room", character.room, "Entered", character)
 

@@ -52,6 +52,9 @@ class TelnetService:
         self.session.ren.resize(size=self.session.size)
 
     async def thread(self):
+        if not self.session.instance:
+            raise ValueError('An instance is required to start the telnet server. Please configure one.')
+
         try:
             if msg := self.session.instance.properties.get('msg_connect', None):
                 t = Template(msg, searchList={"instance": self.session.instance, "fg": Fg})
