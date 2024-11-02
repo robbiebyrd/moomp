@@ -8,5 +8,5 @@ class BaseTextTemplate:
 
     @staticmethod
     def load(template: str):
-        with open(template, 'r', encoding='unicode_escape') as tmpl_file:
+        with open(template, "r", encoding="unicode_escape") as tmpl_file:
             return tmpl_file.read()

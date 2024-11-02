@@ -25,16 +25,16 @@ def parse_input_type(line: str):
 
 
 async def select(
-        session: TextSession,
-        options: list[str],
-        message: str | None,
-        colors: list[str] | None = None,
-        bg_colors: list[str] | None = None,
-        required: bool = True,
-        center: bool = False,
-        spacer: str = ren.sp,
-        h_padding: int = 1,
-        default_selected: int | None = None,
+    session: TextSession,
+    options: list[str],
+    message: str | None,
+    colors: list[str] | None = None,
+    bg_colors: list[str] | None = None,
+    required: bool = True,
+    center: bool = False,
+    spacer: str = ren.sp,
+    h_padding: int = 1,
+    default_selected: int | None = None,
 ):
     line = ""
 
@@ -44,28 +44,32 @@ async def select(
     ansi_escape_header_key_seen = False
 
     def create_list(fg, bg, ops, pad):
-        session.writer.write(ren.enc(ren.ct(f"{message}", ren.color_theme.input) + ren.nl))
+        session.writer.write(
+            ren.enc(ren.ct(f"{message}", ren.color_theme.input) + ren.nl)
+        )
         length = max(map(len, ops)) + (h_padding * 2)
 
         fg = get_colors_array(len(ops), fg)
 
         if bg is None:
-            bg = [
-                hex_color_complimentary(fg[len(fg) - 1 - i]) for i in range(len(fg))
-            ]
+            bg = [hex_color_complimentary(fg[len(fg) - 1 - i]) for i in range(len(fg))]
 
-        session.writer.write(ren.enc(
-            "".join([
-                ren.ct(
-                    f"{ren.sp * pad}{i + 1}:"
-                    f" {ren.style('reverse') if selected is not None and i == selected else ''}"
-                    f" {x.center(length, spacer) if center else x.ljust(length, spacer)}",
-                    [fg[i],
-                     bg[i]]
-                ) + ren.nl
-                for i, x in enumerate(ops)
-            ]),
-        ))
+        session.writer.write(
+            ren.enc(
+                "".join(
+                    [
+                        ren.ct(
+                            f"{ren.sp * pad}{i + 1}:"
+                            f" {ren.style('reverse') if selected is not None and i == selected else ''}"
+                            f" {x.center(length, spacer) if center else x.ljust(length, spacer)}",
+                            [fg[i], bg[i]],
+                        )
+                        + ren.nl
+                        for i, x in enumerate(ops)
+                    ]
+                ),
+            )
+        )
 
     create_list(colors, bg_colors, options, h_padding)
 
@@ -100,10 +104,8 @@ async def select(
                     session.writer.write(f"{selected + 1}{ren.nl}")
                     return selected + 1
                 session.writer.write(
-                    ren.ct(
-                        "This value is required",
-                        *ren.color_theme.error)
-                    + ren.nl)
+                    ren.ct("This value is required", *ren.color_theme.error) + ren.nl
+                )
                 create_list(colors, bg_colors, options, h_padding)
                 continue
             session.writer.write(ren.nl)
@@ -114,9 +116,9 @@ async def select(
 
 
 def handle_menu_select(
-        char_input: str,
-        length: int,
-        selected: int | None,
+    char_input: str,
+    length: int,
+    selected: int | None,
 ) -> int | None:
     match char_input:
         case "A":  # Up
@@ -132,11 +134,11 @@ def handle_menu_select(
 
 
 async def input_line(
-        session: TextSession,
-        message: str | None = None,
-        mask_character: str = None,
-        required: bool = True,
-        on_new_line: bool = True,
+    session: TextSession,
+    message: str | None = None,
+    mask_character: str = None,
+    required: bool = True,
+    on_new_line: bool = True,
 ):
     line = ""
 
@@ -164,10 +166,10 @@ async def input_line(
 
 
 async def input_char(
-        session: TextSession,
-        message: str | None = None,
-        mask_character: str = None,
-        on_new_line: bool = True,
+    session: TextSession,
+    message: str | None = None,
+    mask_character: str = None,
+    on_new_line: bool = True,
 ):
     line = ""
 
@@ -177,5 +179,7 @@ async def input_char(
         char_input = await session.reader.read(1)
 
         if len(char_input) > 0:
-            session.writer.write(f"{line if mask_character is None else mask_character}{ren.nl}")
+            session.writer.write(
+                f"{line if mask_character is None else mask_character}{ren.nl}"
+            )
             return parse_input_type(line)

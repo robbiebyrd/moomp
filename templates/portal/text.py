@@ -17,14 +17,16 @@ class PortalTextTemplate(BaseTextTemplate):
         return f"/{Path(f'./{__file__}').parent}/{filename}.templ"
 
     def get(
-            self,
-            portal: Portal,
-            room: Room,
-            to: bool,
-            colors: list[str] = None,
-            color_groups: list[list[str]] = None,
+        self,
+        portal: Portal,
+        room: Room,
+        to: bool,
+        colors: list[str] = None,
+        color_groups: list[list[str]] = None,
     ):
-        default_color_groups = list(self._session.ren.color_groups.get("colors").values())
+        default_color_groups = list(
+            self._session.ren.color_groups.get("colors").values()
+        )
         default_colors = default_color_groups[randrange(len(default_color_groups))]
 
         return str(

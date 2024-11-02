@@ -85,6 +85,7 @@ class CharacterService:
         character.room = room
         character.save()
 
+
 # async def register(self):
 #     while True:
 #         email_input = await self.input_line("Email Address: ")

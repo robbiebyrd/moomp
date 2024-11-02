@@ -11,7 +11,16 @@ from services.telnet.telnet import TextSession
 
 
 class SayCommand(Command):
-    command_prefixes = ["say ", "speak ", '"', "'", "shout ", "scream ", "yell ", "emote "]
+    command_prefixes = [
+        "say ",
+        "speak ",
+        '"',
+        "'",
+        "shout ",
+        "scream ",
+        "yell ",
+        "emote ",
+    ]
     private_message_command_prefixes = []
 
     @classmethod
@@ -19,27 +28,30 @@ class SayCommand(Command):
         # Make a shallow copy of the document object for filtering.
         doc = json.loads(document.to_json(use_db_field=False))
 
-        messages = ([
-                        {
-                            "topic": f"/Speech/{document.id}/Room/{room.id}/Speaker/{session.character.id}",
-                            "payload": json.dumps(doc)
-                        } for room in document.rooms
-                    ] + [
-                        {
-                            "topic": f"/Speech/{document.id}/Listener/{listener.id}/Speaker/{session.character.id}",
-                            "payload": json.dumps(doc)
-                        } for listener in document.listeners
-                    ]
-                    )
+        messages = [
+            {
+                "topic": f"/Speech/{document.id}/Room/{room.id}/Speaker/{session.character.id}",
+                "payload": json.dumps(doc),
+            }
+            for room in document.rooms
+        ] + [
+            {
+                "topic": f"/Speech/{document.id}/Listener/{listener.id}/Speaker/{session.character.id}",
+                "payload": json.dumps(doc),
+            }
+            for listener in document.listeners
+        ]
 
         publish.multiple(
             messages,
             hostname=os.environ.get("MQTT_HOST", "mqtt"),
-            port=int(os.environ.get("MQTT_PORT", 1883))
+            port=int(os.environ.get("MQTT_PORT", 1883)),
         )
 
     @classmethod
-    async def telnet(cls, reader, writer, mqtt_client, command: str, session: "TextSession"):
+    async def telnet(
+        cls, reader, writer, mqtt_client, command: str, session: "TextSession"
+    ):
         command = command.strip()
         prefix = cls.get_command_prefix(command)
         if not command.startswith("'") or not command.startswith('"'):
@@ -50,7 +62,7 @@ class SayCommand(Command):
         def check_char(cmd, chars: list[str]):
             for char in chars:
                 if cmd.startswith(char):
-                    cmd = cmd[len(char):]
+                    cmd = cmd[len(char) :]
                 if cmd.endswith(char):
                     cmd = cmd[: -len(char)]
             return cmd
@@ -65,13 +77,16 @@ class SayCommand(Command):
                 for portal in PortalService.get_by_room(session.character.room.id):
                     if portal.from_room == session.character.room:
                         hear_rooms.append(portal.to_room)
-                    elif portal.to_room == session.character.room and portal.reversible == True:
+                    elif (
+                        portal.to_room == session.character.room
+                        and portal.reversible == True
+                    ):
                         hear_rooms.append(portal.from_room)
                 speech = Speech.objects.create(
                     speaker=session.character,
                     message=command,
                     rooms=hear_rooms,
-                    prefix=[prefix, pluralizer.pluralize(prefix, 2, False)]
+                    prefix=[prefix, pluralizer.pluralize(prefix, 2, False)],
                 )
                 await cls.notify(speech, session)
             case _:

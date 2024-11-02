@@ -11,7 +11,7 @@ def format_portal(ext):
     for alias in ext["aliasTo"]:
         color = direction_color_map.get(alias[:1], direction_color_default)
         if x := alias.find("*") > 0:
-            alias = "[bold]" + alias[:x] + "[/bold]" + alias[x + 1:]
+            alias = "[bold]" + alias[:x] + "[/bold]" + alias[x + 1 :]
         exit_aliases += exit_format.format(alias=alias, color=color) + " "
 
     return f"{ext['name']} ({exit_aliases})"

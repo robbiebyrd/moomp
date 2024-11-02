@@ -8,7 +8,8 @@ from mongoengine import (
     ListField,
     BooleanField,
     DictField,
-    SequenceField, DateTimeField,
+    SequenceField,
+    DateTimeField,
 )
 from pydantic import BaseModel
 
@@ -29,7 +30,9 @@ class Portal(Document):
     owner = ReferenceField(Character, required=True, db_field="_ownerId")
 
     from_room = ReferenceField(Room, required=True, db_field="_fromId")
-    to_room = ReferenceField(Room, required=True, db_field="_toId")  # The Exit of the portal
+    to_room = ReferenceField(
+        Room, required=True, db_field="_toId"
+    )  # The Exit of the portal
 
     name = StringField(required=True)
 

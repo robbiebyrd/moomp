@@ -12,17 +12,20 @@ def current_subscriptions(session):
 
     # If a character is in a room, then it subscribes to that room's events
     if session.character.room:
-        subscriptions.extend((
-            f"/Room/{session.character.room.id}/#",
-            f"/Speech/+/Room/{session.character.room.id}/#",
-        ))
+        subscriptions.extend(
+            (
+                f"/Room/{session.character.room.id}/#",
+                f"/Speech/+/Room/{session.character.room.id}/#",
+            )
+        )
 
     # If a user is holding any objects, then receive event updates on those
     subscriptions.extend(
         f"/Object/{obj.id}/#"
         for obj in Object.objects(
             Q(holder=session.character.id) | Q(room=session.character.room.id)
-        ))
+        )
+    )
 
     return subscriptions
 
@@ -45,9 +48,7 @@ async def unsubscribe(session, subscriptions):
 
 async def refresh_subscriptions(session):
     topics_to_subscribe = current_subscriptions(session)
-    session.message_topics = list(
-        set(session.message_topics + topics_to_subscribe)
-    )
+    session.message_topics = list(set(session.message_topics + topics_to_subscribe))
 
     topics_to_unsubscribe = [
         subscription

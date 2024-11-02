@@ -6,5 +6,5 @@ __all__ = [
     "portal",
     "room",
     "script",
-    "speech"
+    "speech",
 ]

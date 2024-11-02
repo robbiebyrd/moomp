@@ -8,7 +8,9 @@ class CopyCommand(Command):
     args = 2
 
     @classmethod
-    async def telnet(cls, reader, writer, mqtt_client, command: str, session: "TextSession"):
+    async def telnet(
+        cls, reader, writer, mqtt_client, command: str, session: "TextSession"
+    ):
 
         args = cls.parse_args(cls.get_arguments(command))
 
@@ -29,7 +31,7 @@ class CopyCommand(Command):
                 owner=session.character.id,
                 description=object_to_copy.description,
                 room=session.character.room.id,
-                properties=object_to_copy.properties
+                properties=object_to_copy.properties,
             )
 
             writer.write(f"You create {new_object.name} with ID {new_object.id}.")

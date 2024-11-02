@@ -8,7 +8,8 @@ from mongoengine import (
     DateTimeField,
 )
 from mongoengine import (
-    EmailField, )
+    EmailField,
+)
 from pydantic import BaseModel
 
 from models.instance import Instance

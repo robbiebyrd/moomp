@@ -6,7 +6,8 @@ from mongoengine import (
     StringField,
     DictField,
     SequenceField,
-    BooleanField, DateTimeField,
+    BooleanField,
+    DateTimeField,
 )
 from pydantic import BaseModel, ValidationError
 
@@ -36,7 +37,9 @@ class Object(Document):
 
     def clean(self):
         if self.holder is not None and self.room is not None:
-            raise ValidationError("You cannot assign an object to both a room and a character.")
+            raise ValidationError(
+                "You cannot assign an object to both a room and a character."
+            )
 
 
 class ObjectCreateDTO(BaseModel):

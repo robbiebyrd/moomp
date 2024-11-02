@@ -7,5 +7,7 @@ class LogoutCommand(Command):
     command_prefixes = ["logout"]
 
     @classmethod
-    async def telnet(cls, reader, writer, mqtt_client, command: str, session: TextSession):
+    async def telnet(
+        cls, reader, writer, mqtt_client, command: str, session: TextSession
+    ):
         logout(session)

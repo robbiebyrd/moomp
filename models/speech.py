@@ -23,7 +23,9 @@ class Speech(Document):
     prefix = ListField(required=True, default=["say", "says"])
 
     # The characters being spoken to.
-    listeners = ListField(ReferenceField("Character", db_field="_characterIds"), required=False)
+    listeners = ListField(
+        ReferenceField("Character", db_field="_characterIds"), required=False
+    )
 
     # The rooms where the message can be heard.
     rooms = ListField(ReferenceField("Room", db_field="_roomIds"), required=False)

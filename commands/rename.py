@@ -7,11 +7,13 @@ class RenameCommand(Command):
     command_prefixes = ["@rename "]
 
     @classmethod
-    async def telnet(cls, reader, writer, mqtt_client, command: str, session: "TextSession"):
+    async def telnet(
+        cls, reader, writer, mqtt_client, command: str, session: "TextSession"
+    ):
 
         for prefix in cls.command_prefixes:
             if command.lower().startswith(prefix):
-                command = command[len(prefix):]
+                command = command[len(prefix) :]
                 break
 
         command = command.strip().split()

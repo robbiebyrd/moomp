@@ -40,14 +40,19 @@ class RoomService:
 
     @classmethod
     def here(cls, room_id: str, show_offline: bool = False, show_hidden: bool = False):
-        objects_query = (Q(room=room_id) & Q(visible=True)) if show_hidden else Q(room=room_id)
-        characters_query = (
-                Q(room=room_id)
-                & (None if show_offline else Q(online=True))
-                & (None if show_offline else Q(visible=True))
+        objects_query = (
+            (Q(room=room_id) & Q(visible=True)) if show_hidden else Q(room=room_id)
         )
-        return {"objects": Object.objects(objects_query), "characters": Character.objects(characters_query),
-                'exits': cls.exits(room_id)}
+        characters_query = (
+            Q(room=room_id)
+            & (None if show_offline else Q(online=True))
+            & (None if show_offline else Q(visible=True))
+        )
+        return {
+            "objects": Object.objects(objects_query),
+            "characters": Character.objects(characters_query),
+            "exits": cls.exits(room_id),
+        }
 
     @classmethod
     def update(cls, room: RoomUpdateDTO):
@@ -95,8 +100,13 @@ class RoomService:
         return portal
 
     @classmethod
-    def exits_and_aliases(cls, room_id: str, lowercase: bool = True, filter_duplicates: bool = True, include_name:
-    bool = True):
+    def exits_and_aliases(
+        cls,
+        room_id: str,
+        lowercase: bool = True,
+        filter_duplicates: bool = True,
+        include_name: bool = True,
+    ):
         room = Room.objects(id=room_id).first()
         exits = []
 
@@ -131,12 +141,26 @@ class RoomService:
         direction = direction.lower()
 
         for portal in portals:
-            if direction in [x.lower() for x in portal.alias_to] and portal.to_room.id != room_id:  # and
+            if (
+                direction in [x.lower() for x in portal.alias_to]
+                and portal.to_room.id != room_id
+            ):  # and
                 return True, portal, portal.to_room
-            elif (direction in [x.lower() for x in portal.alias_from] and portal.reversible is True and
-                  portal.from_room.id != room_id):
+            elif (
+                direction in [x.lower() for x in portal.alias_from]
+                and portal.reversible is True
+                and portal.from_room.id != room_id
+            ):
                 return False, portal, portal.from_room
             elif direction.lower() == portal.name.lower():
-                return True, portal, portal.to_room if room_id == portal.from_room.id else portal.from_room
+                return (
+                    True,
+                    portal,
+                    (
+                        portal.to_room
+                        if room_id == portal.from_room.id
+                        else portal.from_room
+                    ),
+                )
 
         return False, None, room

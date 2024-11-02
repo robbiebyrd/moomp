@@ -6,7 +6,8 @@ from mongoengine import (
     StringField,
     BooleanField,
     DictField,
-    SequenceField, DateTimeField,
+    SequenceField,
+    DateTimeField,
 )
 from pydantic import BaseModel
 

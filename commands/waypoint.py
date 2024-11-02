@@ -8,7 +8,9 @@ class WaypointCommand(Command):
     command_format = ["waypoint <nickname>"]
 
     @classmethod
-    async def telnet(cls, reader, writer, mqtt_client, command: str, session: TextSession):
+    async def telnet(
+        cls, reader, writer, mqtt_client, command: str, session: TextSession
+    ):
         command = "".join(command.split()[:1])
         command_properties = " ".join(command.split()[1:])
         if command == "waypoints":

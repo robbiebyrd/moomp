@@ -22,29 +22,33 @@ class Command(ABC):
 
     @classmethod
     @abstractmethod
-    async def telnet(cls, reader, writer, mqtt_client, command: str, session: "TextSession") -> str | None:
+    async def telnet(
+        cls, reader, writer, mqtt_client, command: str, session: "TextSession"
+    ) -> str | None:
         pass
 
     @classmethod
     def get_command_prefix(cls, command):
         for prefix in cls.command_prefixes:
             if command.lower().startswith(prefix):
-                return (command[:len(prefix)]
-                        .strip())
+                return command[: len(prefix)].strip()
 
     @classmethod
     def get_arguments(cls, command):
         for prefix in cls.command_prefixes:
             if command.lower().startswith(prefix):
-                return (command[len(prefix):]
-                        .strip())
+                return command[len(prefix) :].strip()
 
     @classmethod
     def parse_args(cls, args):
-        parsed_arguments = args.split(' ', 1)
+        parsed_arguments = args.split(" ", 1)
         for arg_wrapper in ['"', "'"]:
             if arg_wrapper in args:
-                parsed_arguments = [line for line in [line.strip() for line in args.split(arg_wrapper)] if line]
+                parsed_arguments = [
+                    line
+                    for line in [line.strip() for line in args.split(arg_wrapper)]
+                    if line
+                ]
         return list(filter(lambda item: item != "", parsed_arguments))
 
     @classmethod
@@ -63,7 +67,4 @@ class Command(ABC):
 
 
 def get_command_modules() -> List[Command]:
-    return import_modules(commands.__all__,
-                          'telnet',
-                          "commands.",
-                          "Command")
+    return import_modules(commands.__all__, "telnet", "commands.", "Command")

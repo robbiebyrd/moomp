@@ -16,9 +16,16 @@ def find_closest_hex_color(hex_color: str, hex_colors: list[str]) -> str:
     Returns:
         str: The closest hex color from the provided list.
     """
-    input_color = tuple(int(hex_color.lstrip('#')[i:i + 2], 16) for i in (0, 2, 4))
-    distances = [math.sqrt(sum((int(c.lstrip('#')[i:i + 2], 16) - a) ** 2 for i, a in enumerate(input_color))) for c in
-                 hex_colors]
+    input_color = tuple(int(hex_color.lstrip("#")[i : i + 2], 16) for i in (0, 2, 4))
+    distances = [
+        math.sqrt(
+            sum(
+                (int(c.lstrip("#")[i : i + 2], 16) - a) ** 2
+                for i, a in enumerate(input_color)
+            )
+        )
+        for c in hex_colors
+    ]
     return hex_colors[distances.index(min(distances))]
 
 
@@ -35,7 +42,9 @@ def hex_color_inverse(hex_color: str):
         str: The inverse hex color string.
     """
     hex_color = hex_string_cleaner(hex_color)
-    return "#" + "".join([hex(255 - int(hex_color[i: i + 2], 16))[2:].zfill(2) for i in range(1, 6, 2)])
+    return "#" + "".join(
+        [hex(255 - int(hex_color[i : i + 2], 16))[2:].zfill(2) for i in range(1, 6, 2)]
+    )
 
 
 def hex_color_complimentary(hex_color: str):
@@ -77,7 +86,7 @@ def hex_color_to_rgb(hex_color: str):
         tuple: A tuple containing the RGB components as integers (r, g, b).
     """
     hex_color = hex_string_cleaner(hex_color)
-    return tuple(int(hex_color[i:i + 2], 16) for i in (0, 2, 4))
+    return tuple(int(hex_color[i : i + 2], 16) for i in (0, 2, 4))
 
 
 def rgb_color_to_hex(r, g, b):
@@ -92,7 +101,7 @@ def rgb_color_to_hex(r, g, b):
         str: The corresponding hex color string (e.g., '#RRGGBB').
     """
 
-    return '#{:02x}{:02x}{:02x}'.format(r, g, b)
+    return "#{:02x}{:02x}{:02x}".format(r, g, b)
 
 
 class ColorType(StrEnum):
@@ -109,7 +118,7 @@ class ColorEncodingTypes(Enum):
 def color_kind(color):
     if isinstance(color, list | tuple) and len(list(color)) == 3:
         return ColorEncodingTypes.RGB
-    elif isinstance(color, str) and color.startswith('#') and 3 < len(color) < 8:
+    elif isinstance(color, str) and color.startswith("#") and 3 < len(color) < 8:
         return ColorEncodingTypes.HEX
     elif isinstance(color, str):
         return ColorEncodingTypes.NAME
@@ -119,6 +128,10 @@ def color_kind(color):
 
 def get_colors_array(length: int, colors: list | None = None):
     colors = [colors] if type(colors) is not list else colors
-    colors = [item for sublist in map(lambda c: [c] * ceil(length / len(colors)), colors) for item in sublist]
+    colors = [
+        item
+        for sublist in map(lambda c: [c] * ceil(length / len(colors)), colors)
+        for item in sublist
+    ]
 
     return colors[:length]
