@@ -1,5 +1,6 @@
 import logging
 
+from models.events import Event
 from utils.db import connect_db
 from utils.types import OBJECT_TYPES
 
@@ -11,3 +12,5 @@ def clean():
 
     for object_type in OBJECT_TYPES:
         object_type.objects().delete()
+
+    Event.objects().delete()
