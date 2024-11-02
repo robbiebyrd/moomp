@@ -4,7 +4,6 @@ from entrypoints.seed import Seeder
 from entrypoints.telnet import TelnetServer
 from utils.check import check
 from utils.clean import clean
-from utils.migrate import migrate
 
 parser = argparse.ArgumentParser(prog="MOOMP", description="A simple MOO-like server, written in Python using MongoDB.")
 parser.add_argument("command", choices=["seed", "dev", "clean", "migrate", "telnet", "script", "check"])
@@ -19,19 +18,15 @@ def main():
         case "check":
             check()
         case "seed":
-            clean()
             if args.seed_file is None:
                 print('The argument --seed_file is required.')
             else:
                 Seeder(args.seed_file).seed()
         case "dev":
             clean()
-            migrate()
             TelnetServer(args.instance).serve()
         case "clean":
             clean()
-        case "migrate":
-            migrate()
         case "telnet":
             TelnetServer(args.instance).serve()
         case _:

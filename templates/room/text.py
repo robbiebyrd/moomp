@@ -28,7 +28,7 @@ class RoomTextTemplate(BaseTextTemplate):
         default_color_groups = list(self._session.ren.color_groups.get('colors').values())
         default_colors = default_color_groups[randrange(len(default_color_groups))]
 
-        exits = RoomService.exits_and_aliases(character.room.id, False)
+        exits = RoomService.exits_and_aliases(character.room.id, False, include_name=False)
         here = RoomService.here(room.id)
         objs = list(map(lambda x: x.name, here.get("objects")))
         characters = list(filter(
