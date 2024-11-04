@@ -1,4 +1,9 @@
-$ren.box($ren.ct($room.name, $colors[1]), $color_list[0], center=True)
+#if $room.cId != ''
+  #set $room_name = $room.name + ' (' + str($room.cId) + ')'
+#else
+  #set $room_name = $room.name
+#end if#slurp
+$ren.box($ren.ct($room_name, $colors[1]), $color_list[0], center=True)
 #if $room.description != ''#$room.description$ren.nl#end if##slurp
 #if $len($exits) > 0 #Exits: $ren.list($exits, $color_list[1]) $ren.nl#end if##slurp
 #if $len($chars) > 0 #Characters: $ren.list($chars, $color_list[2]) $ren.nl#end if##slurp

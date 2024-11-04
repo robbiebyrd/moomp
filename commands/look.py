@@ -14,15 +14,26 @@ class LookCommand(Command):
     command_prefixes = ["look", "me"]
 
     @classmethod
-    async def telnet(cls, reader, writer, mqtt_client, command: str, session: TextSession):
-        command, target = ('look', 'me') if command == "me" else cls.parse_command_verb_and_target(command)
+    async def telnet(
+        cls, reader, writer, mqtt_client, command: str, session: TextSession
+    ):
+        command, target = (
+            ("look", "me")
+            if command == "me"
+            else cls.parse_command_verb_and_target(command)
+        )
 
         here = RoomService.here(session.character.room.id)
 
-        characters = list(filter(
-            partial(is_not, None),
-            map(lambda x: x if x.id != session.character.id else None, here.get("characters")),
-        ))
+        characters = list(
+            filter(
+                partial(is_not, None),
+                map(
+                    lambda x: x if x.id != session.character.id else None,
+                    here.get("characters"),
+                ),
+            )
+        )
 
         if len(command) == 0 or target is None:
             writer.write(f"You stare off, gazing into nothing.{session.ren.nl}")
@@ -33,7 +44,9 @@ class LookCommand(Command):
             return
 
         if target.lower() in ["here", "around", session.character.room.name.lower()]:
-            writer.write(RoomTextTemplate(session).get(session.character.room, session.character))
+            writer.write(
+                RoomTextTemplate(session).get(session.character.room, session.character)
+            )
             return
 
         for char in characters:
@@ -52,6 +65,8 @@ class LookCommand(Command):
                 return
 
         if target.lower() in RoomService.exits_and_aliases(session.character.room.id):
-            to, portal, room = RoomService.resolve_alias(session.character.room.id, target.lower())
+            to, portal, room = RoomService.resolve_alias(
+                session.character.room.id, target.lower()
+            )
             writer.write(PortalTextTemplate(session).get(portal, room, to))
             return

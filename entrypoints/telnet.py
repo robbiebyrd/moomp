@@ -22,7 +22,7 @@ class TelnetServer:
             telnetlib3.create_server(
                 port=int(os.environ.get("TELNET_PORT", DEFAULT_LISTEN_PORT)),
                 shell=self.shell,
-                term=DEFAULT_TERM_TYPE
+                term=DEFAULT_TERM_TYPE,
             )
         )
         loop.run_until_complete(server.wait_closed())

@@ -3,7 +3,10 @@ from datetime import datetime
 from mongoengine import (
     Document,
     StringField,
-    SequenceField, ReferenceField, DictField, DateTimeField,
+    SequenceField,
+    ReferenceField,
+    DictField,
+    DateTimeField,
 )
 
 

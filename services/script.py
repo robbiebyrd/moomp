@@ -24,24 +24,20 @@ class ScriptService:
     def _get_options(obj: Union[SCRIPT_OBJECT_TYPES]) -> tuple:
         match obj.__class__.__name__:
             case "Character":
-                return (obj,
-                        obj.inventory,
-                        obj.room,
-                        Character.objects(room=obj.room, online=True),
-                        obj.account,
-                        RoomService.exits(obj.room.id))
+                return (
+                    obj,
+                    obj.inventory,
+                    obj.room,
+                    Character.objects(room=obj.room, online=True),
+                    obj.account,
+                    RoomService.exits(obj.room.id),
+                )
             case "Room":
-                return (obj,
-                        *RoomService.here(obj.id),
-                        RoomService.exits(obj.id))
+                return (obj, *RoomService.here(obj.id), RoomService.exits(obj.id))
             case "Object":
-                return (obj,
-                        obj.holder,
-                        obj.room)
+                return (obj, obj.holder, obj.room)
             case "Portal":
-                return (obj,
-                        obj.from_room,
-                        obj.to_room)
+                return (obj, obj.from_room, obj.to_room)
             case _:
                 return obj
 

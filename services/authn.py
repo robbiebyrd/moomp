@@ -21,7 +21,13 @@ class AuthNService:
         if email and password:
             account = Account.objects(email=email).first()
             if account is not None:
-                return account if bcrypt.checkpw(password.encode("utf-8"), account.password.encode("utf-8")) else None
+                return (
+                    account
+                    if bcrypt.checkpw(
+                        password.encode("utf-8"), account.password.encode("utf-8")
+                    )
+                    else None
+                )
 
     @staticmethod
     def characters(account: Account):
@@ -37,13 +43,15 @@ class AuthNService:
         return True
 
     def email_policy(self, email: str):
-        return email.split('@')[-1] not in self._config.disallowed_domains
+        return email.split("@")[-1] not in self._config.disallowed_domains
 
     def password_policy(self, password: str, policy_group: str = "default"):
         return all(
             re.search(re.compile(policy_check), password)
-            for policy_check in [self._config.password_policies[policy] for policy in
-                                 self._config.password_policy_groups.get(policy_group)]
+            for policy_check in [
+                self._config.password_policies[policy]
+                for policy in self._config.password_policy_groups.get(policy_group)
+            ]
         )
 
     @staticmethod

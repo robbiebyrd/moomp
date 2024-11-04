@@ -26,7 +26,7 @@ def notify(document_type, document, document_operation, operator=None):
 
     filtered_object_fields = {"Account": ["password"]}
 
-    for field in (filtered_object_fields.get(document_type, []) + all_filtered_fields):
+    for field in filtered_object_fields.get(document_type, []) + all_filtered_fields:
         if hasattr(doc, field):
             doc.pop(field)
 
@@ -59,7 +59,9 @@ def unpack_topic(pattern, topic):
         if pattern_part == "#":
             yield list(topic_iter)
             if next(pattern_iter, None) is not None:
-                raise ValueError("The pattern has a component after a #: {!r}".format(pattern_part))
+                raise ValueError(
+                    "The pattern has a component after a #: {!r}".format(pattern_part)
+                )
             return
 
         try:
@@ -83,7 +85,9 @@ def unpack_topic(pattern, topic):
             )
         elif pattern_part != topic_part:
             raise ValueError(
-                "The pattern {!r} is no wildcard, and the topic {!r} differs.".format(pattern_part, topic_part)
+                "The pattern {!r} is no wildcard, and the topic {!r} differs.".format(
+                    pattern_part, topic_part
+                )
             )
 
     if next(topic_iter, None) is not None:

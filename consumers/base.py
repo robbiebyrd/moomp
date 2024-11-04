@@ -26,8 +26,4 @@ def route_message(mqtt, session: TextSession, msg):
 
 
 def get_consumer_modules() -> List[BaseConsumer]:
-    return import_modules(
-        consumers.__all__,
-        'on_message',
-        "consumers.",
-        "Consumer")
+    return import_modules(consumers.__all__, "on_message", "consumers.", "Consumer")

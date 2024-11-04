@@ -17,11 +17,9 @@ def description():
 
 def run():
     instance_data = {
-        'name': 'Hereville',
-        'description': 'Hereville: A village that is here',
-        'properties': {
-            "msg_connect": 'You are connected to ${instance.name}.'
-        }
+        "name": "Hereville",
+        "description": "Hereville: A village that is here",
+        "properties": {"msg_connect": "You are connected to ${instance.name}."},
     }
 
     if not Instance.objects(name=instance_data.get("name")):
@@ -33,14 +31,17 @@ def run():
         {
             "email": "wizard@yourhost.com",
             "password": AuthNService.encrypt_password("wizard"),
-            "instance": instance
+            "instance": instance,
         },
     ]
 
     account_instances = list(
         filter(
             partial(is_not, None),
-            [None if Account.objects(email=data.get("email")) else Account(**data) for data in account_array],
+            [
+                None if Account.objects(email=data.get("email")) else Account(**data)
+                for data in account_array
+            ],
         )
     )
 
@@ -59,7 +60,10 @@ def run():
     character_instances = list(
         filter(
             partial(is_not, None),
-            [None if Character.objects(name=data.get("name")) else Character(**data) for data in character_array],
+            [
+                None if Character.objects(name=data.get("name")) else Character(**data)
+                for data in character_array
+            ],
         )
     )
 
@@ -89,7 +93,14 @@ def run():
     room_instances = list(
         filter(
             partial(is_not, None),
-            [None if Room.objects(name=data.get("name"), owner=the_wiz) else Room(**data) for data in room_array],
+            [
+                (
+                    None
+                    if Room.objects(name=data.get("name"), owner=the_wiz)
+                    else Room(**data)
+                )
+                for data in room_array
+            ],
         )
     )
 
@@ -130,12 +141,14 @@ def run():
 
     Script.objects.update_one(
         owner=the_wiz,
-        name='test_script',
-        scripts=[ScriptType(
-            type=ScriptTypes.Character,
-            script='''function(character, inventory, room, nearby, account, exits)
+        name="test_script",
+        scripts=[
+            ScriptType(
+                type=ScriptTypes.Character,
+                script="""function(character, inventory, room, nearby, account, exits)
             return character, inventory, room, nearby, account, exits
-        end'''
-        )],
-        attached=[the_wiz, the_prog, the_builder, the_architect]
+        end""",
+            )
+        ],
+        attached=[the_wiz, the_prog, the_builder, the_architect],
     )

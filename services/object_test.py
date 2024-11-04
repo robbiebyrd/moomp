@@ -29,6 +29,7 @@ def test_remove_user():
     assert ObjectService.get_by_id(test_obj.id) is None
     cleanup_test_object(test_obj)
 
+
 # def test_update_user():
 #     create_test_character('Test')
 #     csu = CharacterService.new('Test')

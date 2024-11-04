@@ -38,10 +38,18 @@ class AccountService:
         if AuthNService().password_policy(password_update.new_password) is False:
             raise ValueError("The new password did not meet the minimum policies.")
         if cls.get_by_email_address(password_update.email) is None:
-            raise ValueError(f"The provided email address {password_update.email} was not found in our system.")
-        if (authed_acct := AuthNService.authorize(password_update.email, password_update.current_password)) is None:
+            raise ValueError(
+                f"The provided email address {password_update.email} was not found in our system."
+            )
+        if (
+            authed_acct := AuthNService.authorize(
+                password_update.email, password_update.current_password
+            )
+        ) is None:
             raise ValueError("The current password provided was invalid.")
 
         # Now that we have passed all the checks, change the password, save the record and return it.
-        authed_acct.password = AuthNService.encrypt_password(password_update.new_password)
+        authed_acct.password = AuthNService.encrypt_password(
+            password_update.new_password
+        )
         return authed_acct.save()

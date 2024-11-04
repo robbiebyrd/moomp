@@ -63,6 +63,7 @@ def test_remove_portal():
     cleanup_test_portal(test_portal)
     cleanup_test_room(test_room)
 
+
 # def test_rename_portal():
 #     create_test_portal("RenameMe")
 #     cs = PortalService.new("RenameMe")

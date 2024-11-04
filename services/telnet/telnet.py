@@ -3,8 +3,6 @@ from datetime import datetime
 
 from Cheetah.Template import Template
 from ansi_escapes import ansiEscapes as ae
-from colored import Fore as Fg
-from colored import Style as Sty
 
 from commands import base
 from models.instance import Instance
@@ -41,7 +39,9 @@ class TelnetService:
         if not isinstance(message, list):
             message = [message]
         for msg in message:
-            self.session.writer.write(str(msg) + (self.session.ren.nl if add_newline else ""))
+            self.session.writer.write(
+                str(msg) + (self.session.ren.nl if add_newline else "")
+            )
 
     def size(self):
         # Set the window's session size.
@@ -53,11 +53,19 @@ class TelnetService:
 
     async def thread(self):
         if not self.session.instance:
-            raise ValueError('An instance is required to start the telnet server. Please configure one.')
+            raise ValueError(
+                "An instance is required to start the telnet server. Please configure one."
+            )
 
         try:
-            if msg := self.session.instance.properties.get('msg_connect', None):
-                t = Template(msg, searchList={"instance": self.session.instance, "fg": Fg})
+            if msg := self.session.instance.properties.get("msg_connect", None):
+                t = Template(
+                    msg,
+                    searchList={
+                        "instance": self.session.instance,
+                        "ren": self.session.ren,
+                    },
+                )
                 self.write_line(str(t))
 
             # Attempt to log in
@@ -73,8 +81,10 @@ class TelnetService:
                 self.session.character.save()
 
             self.write_line(
-                RoomTextTemplate(self.session).get(self.session.character.room, self.session.character),
-                add_newline=False
+                RoomTextTemplate(self.session).get(
+                    self.session.character.room, self.session.character
+                ),
+                add_newline=False,
             )
 
             while True:
@@ -130,8 +140,10 @@ class TelnetService:
                                 [
                                     ae.eraseLine,
                                     ae.cursorTo(0),
-                                    self.session.ren.ct(line, self.session.ren.color_theme.input),
-                                    Sty.reset,
+                                    self.session.ren.ct(
+                                        line, self.session.ren.color_theme.input
+                                    ),
+                                    self.session.ren.reset(),
                                 ]
                             ),
                         )
@@ -154,27 +166,38 @@ class TelnetService:
                                 self.session,
                             )
                         else:
-                            self.session.writer.write(f"I'm sorry, I didn't understand that.{self.session.ren.nl}")
+                            self.session.writer.write(
+                                f"I'm sorry, I didn't understand that.{self.session.ren.nl}"
+                            )
 
                         # Clear the line and we start all over again
                         line = ""
                     case _:  # Any other character
                         char = str(char_input)
                         # Any other characters input be added to the line buffer
-                        self.session.writer.echo(self.session.ren.ct(char, self.session.ren.color_theme.inputActive))
+                        self.session.writer.echo(
+                            self.session.ren.ct(
+                                char, self.session.ren.color_theme.inputActive
+                            )
+                        )
                         line += char
         finally:
             pass
 
     @classmethod
     def command_is_an_exit(cls, line, session):
-        return not cls.commands(line) and line.strip().lower() in RoomService.exits_and_aliases(
-            session.character.room.id)
+        return not cls.commands(
+            line
+        ) and line.strip().lower() in RoomService.exits_and_aliases(
+            session.character.room.id
+        )
 
     @staticmethod
     def commands(line: str):
         strip = line.strip().lower()
         command_modules = base.get_command_modules()
         for cmd in command_modules:
-            if strip in cmd.command_prefixes or any(strip.startswith(prefix) for prefix in cmd.command_prefixes):
+            if strip in cmd.command_prefixes or any(
+                strip.startswith(prefix) for prefix in cmd.command_prefixes
+            ):
                 return cmd
