@@ -39,6 +39,7 @@ class Character(Document):
 
 
 class CharacterCreateDTO(BaseModel):
+    account_id: str
     name: str
     display: str
     visible: bool = True

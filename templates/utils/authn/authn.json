@@ -4,8 +4,8 @@
     "lowercase_letter_one": "[a-z]",
     "numeric_character_one": "\\d",
     "special_character_one": "[!@#$%^&*(),.?\":{}|<>]",
-    "minimum_length_four": "^.{4,}$",
-    "minimum_length_eighth": "^.{8,}$"
+    "minimum_length_four": ".{4,}",
+    "minimum_length_eighth": ".{8,}"
   },
   "password_policy_groups": {
     "default": [

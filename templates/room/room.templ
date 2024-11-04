@@ -2,7 +2,7 @@
   #set $room_name = $room.name + ' (' + str($room.cId) + ')'
 #else
   #set $room_name = $room.name
-#end if#slurp
+#end if
 $ren.box($ren.ct($room_name, $colors[1]), $color_list[0], center=True)
 #if $room.description != ''#$room.description$ren.nl#end if##slurp
 #if $len($exits) > 0 #Exits: $ren.list($exits, $color_list[1]) $ren.nl#end if##slurp

@@ -46,11 +46,11 @@ class AuthNService:
         return email.split("@")[-1] not in self._config.disallowed_domains
 
     def password_policy(self, password: str, policy_group: str = "default"):
+        policies = self._config.password_policy_groups.get(policy_group)
         return all(
-            re.search(re.compile(policy_check), password)
+            re.search(re.compile(policy_check), str(password)) is not None
             for policy_check in [
-                self._config.password_policies[policy]
-                for policy in self._config.password_policy_groups.get(policy_group)
+                self._config.password_policies[policy] for policy in policies
             ]
         )
 

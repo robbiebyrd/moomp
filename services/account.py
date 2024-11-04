@@ -1,5 +1,11 @@
 from middleware import notify_and_create_event
-from models.account import Account, AccountCreateDTO, AccountPasswordUpdateDTO
+from models.account import (
+    Account,
+    AccountCreateDTO,
+    AccountPasswordUpdateDTO,
+    AccountUpdateDTO,
+)
+from models.instance import Instance
 from services.authn import AuthNService
 from utils.db import connect_db
 
@@ -14,7 +20,9 @@ class AccountService:
 
     @staticmethod
     def register(acct: AccountCreateDTO):
-        if Account.objects(email=acct.email).first():
+        if Instance.objects(id=acct.instance_id).first() is None:
+            raise ValueError("An instance is required.")
+        if Account.objects(email=acct.email).first() is None:
             raise ValueError(f"An Account with email {acct.email} already exists.")
         if not AuthNService().email_policy(acct.email):
             raise ValueError(f"The domain for email {acct.email} is not allowed.")
@@ -27,7 +35,7 @@ class AccountService:
         return acct_record
 
     @classmethod
-    def update(cls, acct: AccountCreateDTO):
+    def update(cls, acct: AccountUpdateDTO):
         if fetched_account := cls.get_by_email_address(email=acct.email) is None:
             raise ValueError(f"An account with the email {acct.email} does not exist.")
         return fetched_account.update(**acct.model_dump(exclude_none=True)).save()

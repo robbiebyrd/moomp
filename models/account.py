@@ -28,13 +28,12 @@ class Account(Document):
 
 
 class AccountCreateDTO(BaseModel):
-    name: str
     email: str
     password: str
+    instance_id: str
 
 
 class AccountUpdateDTO(BaseModel):
-    name: str | None = None
     email: str | None = None
 
 

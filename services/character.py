@@ -78,9 +78,9 @@ class CharacterService:
         character.save()
 
     @classmethod
-    def warp(cls, character_id: str, room_id: str):
+    def warp(cls, character_id: str, room_cid: str):
         character = Character.objects(id=character_id).first()
-        room = Room.objects(id=room_id).first()
+        room = Room.objects(cId=room_cid).first()
 
         character.room = room
         character.save()

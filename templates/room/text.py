@@ -24,6 +24,7 @@ class RoomTextTemplate(BaseTextTemplate):
         self,
         room: Room,
         character: Character,
+        template_file: str = "room",
         colors: list[str] = None,
         color_groups: list[list[str]] = None,
     ):
@@ -49,7 +50,7 @@ class RoomTextTemplate(BaseTextTemplate):
 
         return str(
             Template(
-                self.load(self._get_template_path("room")).replace(
+                self.load(self._get_template_path(template_file)).replace(
                     "\n", self._session.ren.nl
                 ),
                 searchList={
