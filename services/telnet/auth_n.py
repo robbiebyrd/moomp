@@ -7,7 +7,7 @@ from utils.db import connect_db
 connect_db()
 
 # TODO: THIS IS ONLY FOR TESTING PURPOSES
-autologin = ["wizard@yourhost.com", "wizard"]
+# autologin = ["wizard@yourhost.com", "wizard"]
 config = AuthNUtils().config
 
 
