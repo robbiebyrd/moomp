@@ -23,7 +23,7 @@ class AccountService:
         instance = Instance.objects(id=acct.instance_id).first()
         if not instance:
             raise ValueError("An instance is required.")
-        if not Account.objects(email=acct.email).first() is None:
+        if Account.objects(email=acct.email).first() is not None:
             raise ValueError(f"An Account with email {acct.email} already exists.")
         if not AuthNService().email_policy(acct.email):
             raise ValueError(f"The domain for email {acct.email} is not allowed.")
