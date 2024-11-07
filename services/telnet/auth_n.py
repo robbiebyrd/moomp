@@ -41,7 +41,7 @@ async def login(session):
             session,
             options=[f"{x.name}" for x in characters],
             message="Select a Character: ",
-            colors=session.ren.color_groups.get("brightness").get("darker"),
+            colors=session.ren.colors,
         )
 
         character_input = parse_input_type(character_input)

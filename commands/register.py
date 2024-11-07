@@ -1,3 +1,5 @@
+from email_validator import validate_email, EmailNotValidError
+
 from commands.base import Command
 from middleware.updater import notify
 from models.account import Account, AccountCreateDTO
@@ -25,10 +27,16 @@ class RegisterCommand(Command):
             if len(already_emails) > 0:
                 session.writer.write(f"That email address is already taken, please try another one.{ren.nl}")
                 continue
+            try:
+                email_validated = validate_email(email_input, check_deliverability=False)
+                email_input = email_validated.normalized
+            except EmailNotValidError as e:
+                session.writer.write(f"That email address is invalid.{ren.nl}")
+                continue
             break
         while True:
-            password_input = await input_line(session, "Password: ", mask_character="*")
-            if AuthNService().password_policy(password_input, PASSWORD_POLICY):
+            password_input = str(await input_line(session, "Password: ", mask_character="*"))
+            if not AuthNService().password_policy(password_input, PASSWORD_POLICY):
                 session.writer.write(f"That password does not meet the complexity requirements.{ren.nl}")
                 continue
             break
@@ -41,7 +49,7 @@ class RegisterCommand(Command):
         )
 
         notify("Account", new_account, "Created")
-        session.writer.write(f"Your account has been created! {ren.nl} Now, create a character to use in-game.")
+        session.writer.write(f"Your account has been created! {ren.nl} Now, create a character to use in-game.{ren.nl}")
         return new_account
 
     @classmethod
@@ -49,15 +57,15 @@ class RegisterCommand(Command):
         while True:
             character_name_input = await input_line(
                 session,
-                "Give your new character a username: ",
+                ren.ct("Give your new character a username: ", 'blue'),
                 required=True,
-                on_new_line=True
             )
-            already_character_name = Character.objects(name=character_name_input)
-            if len(already_character_name) > 0:
-                session.writer.write(f"That character username is already taken, please try another one.{ren.nl}")
-                continue
-            break
+
+            if len(Character.objects(name=character_name_input)) == 0:
+                break
+
+            session.writer.write(f"That character username is already taken, please try another one.{ren.nl}")
+
 
         display_name_input = await input_line(session, "Give your new character a friendly display name: ")
 
@@ -65,7 +73,7 @@ class RegisterCommand(Command):
             user=CharacterCreateDTO(
                 name=character_name_input,
                 display=display_name_input,
-                account_id=new_account.id,
+                account_id=str(new_account.id),
             )
         )
 

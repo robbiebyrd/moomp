@@ -20,6 +20,7 @@ pluralizer = "^1.2.0"
 lupa = "^2.2"
 pydantic-extra-types = "^2.9.0"
 cheetah3 = "^3.2.6.post1"
+email-validator = "^2.2.0"
 
 [tool.poetry.group.dev.dependencies]
 prettier = "^0.0.7"
