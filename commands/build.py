@@ -4,7 +4,7 @@ from services.room import RoomService
 from services.session import TextSession
 
 
-class CopyCommand(Command):
+class BuildCommand(Command):
     command_prefixes = ["@build ", "@dig "]
     minimum_args = 1
 
