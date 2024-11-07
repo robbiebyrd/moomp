@@ -46,13 +46,18 @@ class AuthNService:
         return email.split("@")[-1] not in self._config.disallowed_domains
 
     def password_policy(self, password: str, policy_group: str = "default"):
-        return all(
-            re.search(re.compile(policy_check), password)
-            for policy_check in [
-                self._config.password_policies[policy]
-                for policy in self._config.password_policy_groups.get(policy_group)
-            ]
-        )
+        policy_checks = [
+            self._config.password_policies[policy]
+            for policy in self._config.password_policy_groups.get(policy_group)
+        ]
+
+        a = [
+            re.search(policy_check, password) is not None
+            for policy_check in policy_checks
+        ]
+        print(a, all(a))
+
+        return all(a)
 
     @staticmethod
     def encrypt_password(password: str):

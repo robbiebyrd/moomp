@@ -1,4 +1,5 @@
 from middleware.updater import notify_and_create_event
+from models.account import Account
 from models.character import Character, CharacterCreateDTO, CharacterUpdateDTO
 from models.room import Room
 from services.room import RoomService
@@ -24,7 +25,12 @@ class CharacterService:
         if Character.objects(name=user.name).first():
             raise ValueError("character exists")
 
-        return Character(**user.model_dump(exclude_none=True)).save()
+        an = user.model_dump(exclude_none=True)
+        account = Account.objects(id=user.account_id).first()
+        an["account"] = account
+        del an["account_id"]
+
+        return Character(**an).save()
 
     @staticmethod
     def remove(username: str):
@@ -78,9 +84,9 @@ class CharacterService:
         character.save()
 
     @classmethod
-    def warp(cls, character_id: str, room_id: str):
+    def warp(cls, character_id: str, room_cid: str):
         character = Character.objects(id=character_id).first()
-        room = Room.objects(id=room_id).first()
+        room = Room.objects(cId=room_cid).first()
 
         character.room = room
         character.save()

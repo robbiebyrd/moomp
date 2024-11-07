@@ -4,12 +4,16 @@
     "lowercase_letter_one": "[a-z]",
     "numeric_character_one": "\\d",
     "special_character_one": "[!@#$%^&*(),.?\":{}|<>]",
-    "minimum_length_four": "^.{4,}$",
-    "minimum_length_eighth": "^.{8,}$"
+    "minimum_length_four": "[ -~]{4,}$",
+    "minimum_length_eighth": "[ -~]{8,}$"
   },
   "password_policy_groups": {
     "default": [
-      "minimum_length_four"
+      "minimum_length_eighth",
+      "uppercase_letter_one",
+      "numeric_character_one",
+      "lowercase_letter_one",
+      "special_character_one"
     ]
   },
   "disallowed_domains": [

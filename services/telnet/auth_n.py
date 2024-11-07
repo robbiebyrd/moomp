@@ -7,7 +7,7 @@ from utils.db import connect_db
 connect_db()
 
 # TODO: THIS IS ONLY FOR TESTING PURPOSES
-autologin = ["wizard@yourhost.com", "wizard"]
+autologin = None
 config = AuthNUtils().config
 
 
@@ -41,7 +41,7 @@ async def login(session):
             session,
             options=[f"{x.name}" for x in characters],
             message="Select a Character: ",
-            colors=session.ren.color_groups.get("brightness").get("darker"),
+            colors=session.ren.colors,
         )
 
         character_input = parse_input_type(character_input)

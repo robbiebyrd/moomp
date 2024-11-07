@@ -5,12 +5,14 @@ from Cheetah.Template import Template
 from ansi_escapes import ansiEscapes as ae
 
 from commands import base
+from commands.register import RegisterCommand
 from models.instance import Instance
 from models.room import Room
 from services.mqtt import MQTTService
 from services.room import RoomService
 from services.session import TextSession
 from services.telnet.auth_n import login, logout
+from services.telnet.input import input_char
 from services.telnet.mqtt import refresh_subscriptions
 from templates.room.text import RoomTextTemplate
 from templates.utils.text.graphics import TextGraphicsRenderer
@@ -51,6 +53,35 @@ class TelnetService:
         ]
         self.session.ren.resize(size=self.session.size)
 
+    async def start(self):
+        if msg := self.session.instance.properties.get("msg_connect", None):
+            t = Template(
+                msg,
+                searchList={
+                    "instance": self.session.instance,
+                    "ren": self.session.ren,
+                },
+            )
+        while True:
+            cmd = str(
+                await input_char(
+                    self.session,
+                    'Type R to register a new account or ("L") to login.',
+                    on_new_line=False,
+                )
+            )
+
+            match cmd.lower()[0]:
+                case "l":
+                    self.session.character = await login(self.session)
+                    break
+                case "r":
+                    account = await RegisterCommand.register_account(self.session)
+                    self.session.character = await RegisterCommand.register_character(
+                        self.session, account
+                    )
+                    break
+
     async def thread(self):
         if not self.session.instance:
             raise ValueError(
@@ -58,18 +89,7 @@ class TelnetService:
             )
 
         try:
-            if msg := self.session.instance.properties.get("msg_connect", None):
-                t = Template(
-                    msg,
-                    searchList={
-                        "instance": self.session.instance,
-                        "ren": self.session.ren,
-                    },
-                )
-                self.write_line(str(t))
-
-            # Attempt to log in
-            self.session.character = await login(self.session)
+            await self.start()
 
             line = ""
 
@@ -181,6 +201,10 @@ class TelnetService:
                             )
                         )
                         line += char
+
+        except Exception as e:
+            self.write_line(f"ERROR: {e}")
+            logout(self.session)
         finally:
             pass
 

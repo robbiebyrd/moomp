@@ -138,7 +138,7 @@ async def input_line(
     message: str | None = None,
     mask_character: str = None,
     required: bool = True,
-    on_new_line: bool = True,
+    on_new_line: bool = False,
 ):
     line = ""
 
@@ -154,7 +154,11 @@ async def input_line(
             session.writer.write(ae.cursorBackward(1) + ae.eraseEndLine)
         elif ord(char_input) in {10, 13}:
             if required and len(line) == 0:
-                session.writer.write(f"This value is required.{ren.nl}")
+                session.writer.write(
+                    f"{(ren.nl if on_new_line else "")}This value is required.{ren.nl}"
+                )
+                if message is not None:
+                    session.writer.write(message + (ren.nl if on_new_line else ""))
                 continue
             session.writer.write(ren.nl)
             return parse_input_type(line)
@@ -174,12 +178,14 @@ async def input_char(
     line = ""
 
     if message is not None:
-        session.writer.write(message + (ren.nl if on_new_line else ""))
+        session.writer.write(f"{message} {ren.nl if on_new_line else ''}")
     while True:
-        char_input = await session.reader.read(1)
+        line = await session.reader.read(1)
 
-        if len(char_input) > 0:
+        if len(line) > 0:
             session.writer.write(
                 f"{line if mask_character is None else mask_character}{ren.nl}"
             )
+            print("char_input", parse_input_type(line))
+
             return parse_input_type(line)
