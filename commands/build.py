@@ -22,17 +22,10 @@ class BuildCommand(Command):
         if len(args) == 1:
             args = [args[0], args[0]]
 
-        room_name, room_description = args[:1]
-
-        parent_id = args[2:3] or None
-        visible = args[3:4] or None
-
         room_to_build = RoomCreateDTO(
             owner=session.character.id,
-            name=room_name,
-            description=room_description,
-            parent_id=parent_id,
-            visible=visible,
+            name=args[0],
+            description=args[1],
         )
         RoomService.create(room_to_build)
 
