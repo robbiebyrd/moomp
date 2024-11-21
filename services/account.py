@@ -1,4 +1,5 @@
-from middleware import notify_and_create_event
+from middleware.updater import notify_and_create_event
+
 from models.account import (
     Account,
     AccountCreateDTO,

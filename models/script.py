@@ -14,7 +14,7 @@ from mongoengine import (
     EmbeddedDocumentField,
     GenericReferenceField,
 )
-from pydantic import BaseModel
+from pydantic import BaseModel, Field
 
 from utils.types import SCRIPT_OBJECT_TYPES
 
@@ -48,4 +48,4 @@ class SpeechCreateDTO(BaseModel):
     created_at: datetime | None = None
     listeners: list[str] | None = None
     rooms: list[str] | None = None
-    properties: dict | None = {}
+    properties: dict | None = Field(default={})

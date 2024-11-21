@@ -29,10 +29,11 @@ async def login(session):
         )
     else:
         session.writer.write(
-            f"You are being disconnected after {tries} unsuccessful login attempts."
+            f"You are being disconnected after 5 unsuccessful login attempts."
             f" {session.ren.nl}"
         )
         logout(session)
+        return
 
     while True:
         characters = AuthNService.characters(account)

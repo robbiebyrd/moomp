@@ -21,16 +21,15 @@ class CharacterService:
         return CharacterService(CharacterService.get_by_username(username))
 
     @staticmethod
-    def register(user: CharacterCreateDTO):
-        if Character.objects(name=user.name).first():
+    def register(character: CharacterCreateDTO):
+        if Character.objects(name=character.name).first():
             raise ValueError("character exists")
 
-        an = user.model_dump(exclude_none=True)
-        account = Account.objects(id=user.account_id).first()
-        an["account"] = account
-        del an["account_id"]
+        account_dto = character.model_dump(exclude_none=True)
+        account_dto["account"] = Account.objects(id=character.account_id).first()
+        del account_dto["account_id"]
 
-        return Character(**an).save()
+        return Character(**account_dto).save()
 
     @staticmethod
     def remove(username: str):
@@ -71,15 +70,29 @@ class CharacterService:
         character = Character.objects(id=character_id).first()
         exiting_room = character.room
 
-        _, _, entering_room = RoomService.resolve_alias(character.room.id, direction)
+        _, _, entering_room = RoomService.resolve_alias(
+            room_id=character.room.id, direction=direction
+        )
 
         if entering_room is None:
             return
 
         character.room = entering_room
 
-        notify_and_create_event("Room", exiting_room, "Exited", character)
-        notify_and_create_event("Room", character.room, "Entered", character)
+        notify_and_create_event(
+            document_type="Room",
+            document=exiting_room,
+            document_operation="Exited",
+            operator_type="Character",
+            operator=character,
+        )
+        notify_and_create_event(
+            document_type="Room",
+            document=character.room,
+            document_operation="Entered",
+            operator_type="Character",
+            operator=character,
+        )
 
         character.save()
 
@@ -90,34 +103,3 @@ class CharacterService:
 
         character.room = room
         character.save()
-
-
-# async def register(self):
-#     while True:
-#         email_input = await self.input_line("Email Address: ")
-#         already_emails = Character.objects(email=email_input)
-#         if len(already_emails) > 0:
-#             session.writer.write("That email address is already taken, please try another one.")
-#             continue
-#         break
-#
-#     while True:
-#         character_name_input = await self.input_line("Username: ", required=True, on_new_line=True)
-#         already_character_name = Character.objects(name=character_name_input)
-#         if len(already_character_name) > 0:
-#             session.writer.write("That character name is already taken, please try another one.")
-#             continue
-#         break
-#
-#     password_input = await self.input_line("Password: ", mask_character="*")
-#     display_name_input = await self.input_line("Display Name: ")
-#
-#     char = CharacterService.register(
-#         user=CharacterCreateDTO(
-#             name=character_name_input,
-#             display=display_name_input,
-#             password=password_input,
-#             email=email_input,
-#         )
-#     )
-#     return char

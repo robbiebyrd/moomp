@@ -9,7 +9,7 @@ from mongoengine import (
     ListField,
     DateTimeField,
 )
-from pydantic import BaseModel
+from pydantic import BaseModel, Field
 
 
 class Speech(Document):
@@ -39,4 +39,4 @@ class SpeechCreateDTO(BaseModel):
     created_at: datetime | None = None
     listeners: list[str] | None = None
     rooms: list[str] | None = None
-    properties: dict | None = {}
+    properties: dict | None = Field(default={})

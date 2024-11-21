@@ -9,7 +9,7 @@ class InstanceService:
 
         self._instance = Instance.objects(id=instance_id).first()
 
-    def get_properties(self, property: str | None = None):
-        if property is not None and hasattr(self._instance.properties, property):
-            return self._instance.properties[property]
+    def get_properties(self, prop: str | None = None):
+        if prop is not None and hasattr(self._instance.properties, prop):
+            return self._instance.properties[prop]
         return self._instance.properties

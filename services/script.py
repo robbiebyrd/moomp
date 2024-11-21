@@ -33,11 +33,11 @@ class ScriptService:
                     RoomService.exits(obj.room.id),
                 )
             case "Room":
-                return (obj, *RoomService.here(obj.id), RoomService.exits(obj.id))
+                return obj, *RoomService.here(obj.id), RoomService.exits(obj.id)
             case "Object":
-                return (obj, obj.holder, obj.room)
+                return obj, obj.holder, obj.room
             case "Portal":
-                return (obj, obj.from_room, obj.to_room)
+                return obj, obj.from_room, obj.to_room
             case _:
                 return obj
 
