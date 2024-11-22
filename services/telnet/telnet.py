@@ -86,14 +86,14 @@ class TelnetService:
         notify_and_create_event(
             "Character",
             self.session.character,
-            "Appeared",
+            "LoggedIn",
             "Room",
             self.session.character.room,
         )
         notify_and_create_event(
             "Room",
             self.session.character.room,
-            "Appeared",
+            "LoggedIn",
             "Character",
             self.session.character,
         )

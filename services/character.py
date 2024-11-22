@@ -104,6 +104,22 @@ class CharacterService:
     def warp(cls, character_id: str, room_cid: str):
         character = Character.objects(id=character_id).first()
         room = Room.objects(cId=room_cid).first()
+        exiting_room = character.room
+
+        notify_and_create_event(
+            document_type="Room",
+            document=exiting_room,
+            document_operation="TeleportedOut",
+            operator_type="Character",
+            operator=character,
+        )
+        notify_and_create_event(
+            document_type="Room",
+            document=room,
+            document_operation="TeleportedIn",
+            operator_type="Character",
+            operator=character,
+        )
 
         character.room = room
         character.save()
