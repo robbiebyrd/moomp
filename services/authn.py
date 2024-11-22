@@ -51,13 +51,10 @@ class AuthNService:
             for policy in self._config.password_policy_groups.get(policy_group)
         ]
 
-        a = [
+        return all(
             re.search(policy_check, password) is not None
             for policy_check in policy_checks
-        ]
-        print(a, all(a))
-
-        return all(a)
+        )
 
     @staticmethod
     def encrypt_password(password: str):

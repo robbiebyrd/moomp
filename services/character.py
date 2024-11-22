@@ -13,6 +13,10 @@ class CharacterService:
         self._connection = connect_db()
 
     @staticmethod
+    def get_by_id(user_id: str) -> Character:
+        return Character.objects(id=user_id).first()
+
+    @staticmethod
     def get_by_username(username: str) -> Character:
         return Character.objects(name=username).first()
 

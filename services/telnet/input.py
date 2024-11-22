@@ -184,6 +184,4 @@ async def input_char(
             session.writer.write(
                 f"{line if mask_character is None else mask_character}{ren.nl}"
             )
-            print("char_input", parse_input_type(line))
-
             return parse_input_type(line)
