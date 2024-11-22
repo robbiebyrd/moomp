@@ -5,6 +5,9 @@ import paho.mqtt.publish as publish
 
 from models.events import Event
 
+ALL_FILTERED_FIELDS = ["_id"]
+FILTERED_OBJECT_FIELDS = {"Account": ["password"]}
+
 
 def notify_modified(document_type, document, created):
     notify(document_type.__name__, document, "Created" if created else "Updated")
@@ -14,23 +17,23 @@ def notify_deleted(document_type, document):
     notify(document_type.__name__, document, "Deleted")
 
 
-def notify_and_create_event(document_type, document, document_operation, operator=None):
+def notify_and_create_event(
+    document_type, document, document_operation, operator_type=None, operator=None
+):
     create_event(document, document_operation, operator)
-    notify(document_type, document, document_operation, operator)
+    notify(document_type, document, document_operation, operator_type, operator)
 
 
-def notify(document_type, document, document_operation, operator=None):
+def notify(
+    document_type, document, document_operation, operator_type=None, operator=None
+):
     doc = json.loads(document.to_json(use_db_field=False))
 
-    all_filtered_fields = ["_id"]
-
-    filtered_object_fields = {"Account": ["password"]}
-
-    for field in filtered_object_fields.get(document_type, []) + all_filtered_fields:
+    for field in FILTERED_OBJECT_FIELDS.get(document_type, []) + ALL_FILTERED_FIELDS:
         if hasattr(doc, field):
             doc.pop(field)
 
-    operator_path = f"/{str(operator.id)}" if operator else ""
+    operator_path = f"/{operator_type}/{str(operator.id)}" if operator else ""
 
     publish.single(
         f"/{document_type}/{document.id}/{document_operation}{operator_path}",

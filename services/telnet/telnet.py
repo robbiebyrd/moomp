@@ -6,6 +6,7 @@ from ansi_escapes import ansiEscapes as ae
 
 from commands import base
 from commands.register import RegisterCommand
+from middleware.updater import notify_and_create_event
 from models.instance import Instance
 from models.room import Room
 from services.mqtt import MQTTService
@@ -81,6 +82,22 @@ class TelnetService:
                         self.session, account
                     )
                     break
+
+        # Now that we've logged in, send an alert to the room where this character will appear.
+        notify_and_create_event(
+            "Character",
+            self.session.character,
+            "LoggedIn",
+            "Room",
+            self.session.character.room,
+        )
+        notify_and_create_event(
+            "Room",
+            self.session.character.room,
+            "LoggedIn",
+            "Character",
+            self.session.character,
+        )
 
     async def thread(self):
         if not self.session.instance:

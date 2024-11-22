@@ -175,8 +175,6 @@ async def input_char(
     mask_character: str = None,
     on_new_line: bool = True,
 ):
-    line = ""
-
     if message is not None:
         session.writer.write(f"{message} {ren.nl if on_new_line else ''}")
     while True:
@@ -186,6 +184,4 @@ async def input_char(
             session.writer.write(
                 f"{line if mask_character is None else mask_character}{ren.nl}"
             )
-            print("char_input", parse_input_type(line))
-
             return parse_input_type(line)

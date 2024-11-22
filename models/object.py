@@ -9,7 +9,7 @@ from mongoengine import (
     BooleanField,
     DateTimeField,
 )
-from pydantic import BaseModel, ValidationError
+from pydantic import BaseModel, ValidationError, Field
 
 common_properties = {"locked": bool}
 
@@ -63,7 +63,7 @@ class ObjectCreateDTO(BaseModel):
     description: str
     character: str | None = None
     room: str | None = None
-    properties: dict | None = {}
+    properties: dict | None = Field(default=[])
 
 
 class ObjectUpdateDTO(BaseModel):

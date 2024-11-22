@@ -30,7 +30,7 @@ class RegisterCommand(Command):
             try:
                 email_validated = validate_email(email_input, check_deliverability=False)
                 email_input = email_validated.normalized
-            except EmailNotValidError as e:
+            except EmailNotValidError:
                 session.writer.write(f"That email address is invalid.{ren.nl}")
                 continue
             break
@@ -87,4 +87,3 @@ class RegisterCommand(Command):
             )
         else:
             writer.write(f"Something went wrong. {ren.nl}")
-    

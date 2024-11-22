@@ -11,7 +11,7 @@ from mongoengine import (
     SequenceField,
     DateTimeField,
 )
-from pydantic import BaseModel
+from pydantic import BaseModel, Field
 
 from models.character import Character
 from models.room import Room
@@ -69,9 +69,9 @@ class PortalCreateDTO(BaseModel):
     owner: str
     from_room: str
     to_room: str | None = None
-    alias_to: list[str] = []
+    alias_to: list[str] = Field(default=[])
     description_to: str | None = None
-    alias_from: list[str] = []
+    alias_from: list[str] = Field(default=[])
     description_from: str | None = None
     visible: bool = True
     reversible: bool = False
@@ -98,9 +98,9 @@ class PortalUpdateDTO(BaseModel):
     owner: str | None = None
     from_room: str | None = None
     to_room: str | None = None
-    alias_to: list[str] = []
+    alias_to: list[str] = Field(default=[])
     description_to: str | None = None
-    alias_from: list[str] = []
+    alias_from: list[str] = Field(default=[])
     description_from: str | None = None
     visible: bool | None = None
     reversible: bool | None = None

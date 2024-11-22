@@ -1,6 +1,5 @@
 from mongoengine import signals
 
-from middleware.updater import notify_and_create_event
 from middleware.updater import notify_modified, notify_deleted
 from utils.types import OBJECT_TYPES
 

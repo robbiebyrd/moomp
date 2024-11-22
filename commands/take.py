@@ -18,10 +18,25 @@ class TakeCommand(Command):
     }
 
     @classmethod
-    async def take(cls, command: str, session: TextSession) -> bool:
-        obj = Object.objects(name=command, room=session.character.room).first()
+    def get(cls, command: str, session: TextSession, operation: str):
+        args =  {}
 
-        if obj is not None:
+        match operation:
+            case "drop":
+                args["holder"] = session.character
+            case "take":
+                args["room"] = session.character.room
+
+        if command.startswith("#"):
+            args["cId"] = command[1:]
+        else:
+            args["name"] = command
+
+        return Object.objects(**args).first()
+
+    @classmethod
+    async def take(cls, command: str, session: TextSession) -> bool:
+        if obj := cls.get(command, session, "take"):
             obj.room = None
             obj.holder = session.character
             obj.save()
@@ -31,9 +46,7 @@ class TakeCommand(Command):
 
     @classmethod
     async def drop(cls, command: str, session: TextSession) -> bool:
-        obj = Object.objects(name=command, holder=session.character).first()
-
-        if obj is not None:
+        if obj := cls.get(command, session, "drop"):
             obj.room = session.character.room
             obj.holder = None
             obj.save()

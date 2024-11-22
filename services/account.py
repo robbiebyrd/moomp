@@ -1,4 +1,5 @@
-from middleware import notify_and_create_event
+from middleware.updater import notify_and_create_event
+
 from models.account import (
     Account,
     AccountCreateDTO,
@@ -27,7 +28,6 @@ class AccountService:
             raise ValueError(f"An Account with email {acct.email} already exists.")
         if not AuthNService().email_policy(acct.email):
             raise ValueError(f"The domain for email {acct.email} is not allowed.")
-        print(instance)
 
         acct.password = AuthNService.encrypt_password(acct.password)
         acct_record = Account(
