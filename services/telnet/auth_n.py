@@ -1,3 +1,4 @@
+from middleware.updater import notify_and_create_event
 from models.character import Character
 from services.authn import AuthNService
 from services.telnet.input import parse_input_type, input_line, select
@@ -67,8 +68,15 @@ async def login(session):
 
 
 def logout(session):
-    session.writer.write(f"Goodbye! {session.ren.nl}")
     session.character.online = False
     session.character.save()
+    notify_and_create_event(
+        "Room",
+        session.character.room,
+        "LoggedOut",
+        "Character",
+        session.character,
+    )
     session.mqtt_client.loop_stop()
+    session.writer.write(f"Goodbye! {session.ren.nl}")
     session.writer.close()

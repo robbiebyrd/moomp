@@ -82,6 +82,7 @@ class TelnetService:
                         self.session, account
                     )
                     break
+
         # Now that we've logged in, send an alert to the room where this character will appear.
         notify_and_create_event(
             "Character",

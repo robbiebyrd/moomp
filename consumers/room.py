@@ -10,9 +10,14 @@ connect_db()
 
 
 class RoomConsumer:
-
-    def __init__(self):
-        self._connection = connect_db()
+    allowed_operators = [
+        "Entered",
+        "Exited",
+        "TeleportedIn",
+        "TeleportedOut",
+        "LoggedIn",
+        "LoggedOut",
+    ]
 
     @classmethod
     def on_message(cls, mqtt, session: TextSession, msg):
@@ -20,7 +25,6 @@ class RoomConsumer:
             unpack_topic("/Room/+/+/Character/+", msg.topic)
         )
         if room_id != session.character.room.id and entrant_id == session.character.id:
-            print("whoops")
             return
 
         room = RoomService.get_by_id(room_id)
@@ -29,14 +33,7 @@ class RoomConsumer:
         if not (room and entrant):
             return
 
-        if operator not in [
-            "Entered",
-            "Exited",
-            "TeleportedIn",
-            "TeleportedOut",
-            "LoggedIn",
-            "LoggedOut",
-        ]:
+        if operator not in cls.allowed_operators:
             return
 
         match operator:
