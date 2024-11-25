@@ -8,8 +8,6 @@ services:
       dockerfile: Dockerfile
     ports:
       - ${TELNET_PORT}:${TELNET_PORT}
-    networks:
-      - moomp
 
   mongo:
     image: mongo
@@ -18,8 +16,6 @@ services:
     environment:
       MONGO_INITDB_ROOT_USERNAME: ${MONGODB_USER}
       MONGO_INITDB_ROOT_PASSWORD: ${MONGODB_PASS}
-    networks:
-      - moomp
 
   mqtt:
     image: eclipse-mosquitto
@@ -29,8 +25,3 @@ services:
       - ./docker/mosquitto/mosquitto.conf:/mosquitto/config/mosquitto.conf
       - /docker/mosquitto/data
       - /docker/mosquitto/log
-    networks:
-      - moomp
-
-networks:
-  moomp:

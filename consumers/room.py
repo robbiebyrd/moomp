@@ -24,7 +24,13 @@ class RoomConsumer:
         [room_id, operator, entrant_id] = list(
             unpack_topic("/Room/+/+/Character/+", msg.topic)
         )
-        if room_id != session.character.room.id and entrant_id == session.character.id:
+
+        if operator not in cls.allowed_operators:
+            return
+
+        if entrant_id == str(session.character.id) or room_id != str(
+            session.character.room.id
+        ):
             return
 
         room = RoomService.get_by_id(room_id)
@@ -33,20 +39,17 @@ class RoomConsumer:
         if not (room and entrant):
             return
 
-        if operator not in cls.allowed_operators:
-            return
-
         match operator:
             case "Entered" | "Exited":
                 session.writer.write(
                     f"{session.ren.ct(message=entrant.name, color_name=session.ren.color_theme.chat)}"
-                    f" {operator}{'' if operator.startswith(operator) else f' {room.name}'}.{session.ren.nl}"
+                    f" {operator.lower()} {room.name}.{session.ren.nl}"
                 )
             case "TeleportedIn" | "TeleportedOut" | "LoggedIn" | "LoggedOut":
                 operator = re.sub(r"(\w)([A-Z])", r"\1 \2", operator)
                 session.writer.write(
                     f"{session.ren.ct(message=entrant.name, color_name=session.ren.color_theme.chat)}"
-                    f" {operator}.{session.ren.nl}"
+                    f" {operator.lower()}.{session.ren.nl}"
                 )
 
     @staticmethod
