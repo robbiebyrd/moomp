@@ -22,7 +22,7 @@ class RoomConsumer:
     @classmethod
     def on_message(cls, mqtt, session: TextSession, msg):
         [room_id, operator, entrant_id] = list(
-            unpack_topic("/Room/+/+/Character/+", msg.topic)
+            unpack_topic(f"/{session.instance.id}/Room/+/+/Character/+", msg.topic)
         )
 
         if operator not in cls.allowed_operators:
@@ -53,5 +53,5 @@ class RoomConsumer:
                 )
 
     @staticmethod
-    def validate_topic(topic: str) -> bool:
-        return bool(topic.startswith("/Room/"))
+    def validate_topic(instance_id: str, topic: str) -> bool:
+        return bool(topic.startswith(f"/{instance_id}/Room/"))

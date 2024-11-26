@@ -8,7 +8,7 @@ from utils.db import connect_db
 connect_db()
 
 # TODO: THIS IS ONLY FOR TESTING PURPOSES
-autologin = None
+autologin = ["wizard@yourhost.com", "wizard"]
 default_room = "Main Entrance"
 
 config = AuthNUtils().config
