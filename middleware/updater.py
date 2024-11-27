@@ -9,23 +9,27 @@ ALL_FILTERED_FIELDS = ["_id"]
 FILTERED_OBJECT_FIELDS = {"Account": ["password"]}
 
 
-def notify_modified(document_type, document, created):
-    notify(document_type.__name__, document, "Created" if created else "Updated")
-
-
-def notify_deleted(document_type, document):
-    notify(document_type.__name__, document, "Deleted")
-
-
 def notify_and_create_event(
-    document_type, document, document_operation, operator_type=None, operator=None
+    instance,
+    document_type,
+    document,
+    document_operation,
+    operator_type=None,
+    operator=None,
 ):
     create_event(document, document_operation, operator)
-    notify(document_type, document, document_operation, operator_type, operator)
+    notify(
+        instance, document_type, document, document_operation, operator_type, operator
+    )
 
 
 def notify(
-    document_type, document, document_operation, operator_type=None, operator=None
+    instance,
+    document_type,
+    document,
+    document_operation,
+    operator_type=None,
+    operator=None,
 ):
     doc = json.loads(document.to_json(use_db_field=False))
 
@@ -36,7 +40,7 @@ def notify(
     operator_path = f"/{operator_type}/{str(operator.id)}" if operator else ""
 
     publish.single(
-        f"/{document_type}/{document.id}/{document_operation}{operator_path}",
+        f"/{instance.id}/{document_type}/{document.id}/{document_operation}{operator_path}",
         json.dumps(doc),
         hostname=os.environ.get("MQTT_HOST"),
         port=int(os.environ.get("MQTT_PORT")),

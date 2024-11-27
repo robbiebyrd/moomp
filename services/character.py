@@ -70,7 +70,7 @@ class CharacterService:
         self._character = Character.objects(name=self._character.name).first()
 
     @classmethod
-    def move(cls, character_id: str, direction: str) -> None:
+    def move(cls, session, character_id: str, direction: str) -> None:
         character = Character.objects(id=character_id).first()
         exiting_room = character.room
 
@@ -84,6 +84,7 @@ class CharacterService:
         character.room = entering_room
 
         notify_and_create_event(
+            instance=session.instance,
             document_type="Room",
             document=exiting_room,
             document_operation="Exited",
@@ -91,6 +92,7 @@ class CharacterService:
             operator=character,
         )
         notify_and_create_event(
+            instance=session.instance,
             document_type="Room",
             document=character.room,
             document_operation="Entered",
@@ -101,12 +103,13 @@ class CharacterService:
         character.save()
 
     @classmethod
-    def warp(cls, character_id: str, room_cid: str):
+    def warp(cls, session, character_id: str, room_cid: str):
         character = Character.objects(id=character_id).first()
         room = Room.objects(cId=room_cid).first()
         exiting_room = character.room
 
         notify_and_create_event(
+            instance=session.instance,
             document_type="Room",
             document=exiting_room,
             document_operation="TeleportedOut",
@@ -114,6 +117,7 @@ class CharacterService:
             operator=character,
         )
         notify_and_create_event(
+            instance=session.instance,
             document_type="Room",
             document=room,
             document_operation="TeleportedIn",

@@ -74,8 +74,11 @@ async def login(session):
 
 
 def logout(session):
-    session.character.online = False
-    session.character.save()
-    session.mqtt_client.loop_stop()
-    session.writer.write(f"Goodbye! {session.ren.nl}")
-    session.writer.close()
+    if session.character:
+        session.character.online = False
+        session.character.save()
+    if session.mqtt_client:
+        session.mqtt_client.loop_stop()
+    if session.writer:
+        session.writer.write(f"Goodbye! {session.ren.nl}")
+        session.writer.close()

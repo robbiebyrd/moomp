@@ -48,7 +48,7 @@ class RegisterCommand(Command):
             )
         )
 
-        notify("Account", new_account, "Created")
+        notify(session.instance, "Account", new_account, "Created")
         session.writer.write(f"Your account has been created! {ren.nl} Now, create a character to use in-game.{ren.nl}")
         return new_account
 
@@ -70,7 +70,7 @@ class RegisterCommand(Command):
         display_name_input = await input_line(session, "Give your new character a friendly display name: ")
 
         return CharacterService.register(
-            user=CharacterCreateDTO(
+            character=CharacterCreateDTO(
                 name=character_name_input,
                 display=display_name_input,
                 account_id=str(new_account.id),

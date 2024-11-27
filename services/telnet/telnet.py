@@ -87,6 +87,7 @@ class TelnetService:
 
         # Now that we've logged in, send an alert to the room where this character will appear.
         notify_and_create_event(
+            self.session.instance,
             "Character",
             self.session.character,
             "LoggedIn",
@@ -94,6 +95,7 @@ class TelnetService:
             self.session.character.room,
         )
         notify(
+            self.session.instance,
             "Room",
             self.session.character.room,
             "LoggedIn",

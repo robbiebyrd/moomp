@@ -60,6 +60,7 @@ class TakeCommand(Command):
     @classmethod
     async def notify(cls, obj: Object, operation: str, session: "TextSession"):
         notify_and_create_event(
+            instance=session.instance,
             document_type="Object",
             document=obj,
             document_operation=operation.title(),
