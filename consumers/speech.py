@@ -19,7 +19,7 @@ class SpeechConsumer:
     @classmethod
     def on_message(cls, mqtt, session: TextSession, msg):
         [_, room_id, speaker_id] = list(
-            unpack_topic("/Speech/+/Room/+/Speaker/+", msg.topic)
+            unpack_topic(f"/{session.instance.id}/Speech/+/Room/+/Speaker/+", msg.topic)
         )
         if room_id and speaker_id:
             speaker = Character.objects(id=speaker_id).first()
@@ -43,5 +43,5 @@ class SpeechConsumer:
             )
 
     @classmethod
-    def validate_topic(cls, topic: str) -> bool:
-        return bool(topic.startswith("/Speech/"))
+    def validate_topic(cls, instance_id: str, topic: str) -> bool:
+        return bool(topic.startswith(f"/{instance_id}/Speech/"))
