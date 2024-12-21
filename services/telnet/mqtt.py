@@ -8,20 +8,20 @@ connect_db()
 
 def current_subscriptions(session):
     # The character always subscribes to their own events
-    subscriptions = [f"/Character/{session.character.id}/#"]
+    subscriptions = [f"/{session.instance.id}/Character/{session.character.id}/#"]
 
     # If a character is in a room, then it subscribes to that room's events
     if session.character.room:
         subscriptions.extend(
             (
-                f"/Room/{session.character.room.id}/#",
-                f"/Speech/+/Room/{session.character.room.id}/#",
+                f"/{session.instance.id}/Room/{session.character.room.id}/#",
+                f"/{session.instance.id}/Speech/+/Room/{session.character.room.id}/#",
             )
         )
 
     # If a user is holding any objects, then receive event updates on those
     subscriptions.extend(
-        f"/Object/{obj.id}/#"
+        f"/{session.instance.id}/Object/{obj.id}/#"
         for obj in Object.objects(
             Q(holder=session.character.id) | Q(room=session.character.room.id)
         )

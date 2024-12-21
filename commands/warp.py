@@ -12,9 +12,9 @@ class WarpCommand(Command):
     command_prefixes = ["warp "]
 
     @classmethod
-    async def do(cls, room_cid: int, session: TextSession) -> bool:
+    async def do(cls, session: TextSession, room_cid: int) -> bool:
         if Room.objects(cId=room_cid).first():
-            CharacterService.warp(session.character.id, room_cid=str(room_cid))
+            CharacterService.warp(session, room_cid=str(room_cid))
             session.character.reload()
             return True
         else:
@@ -26,7 +26,7 @@ class WarpCommand(Command):
     ):
         command = cls.get_arguments(command)
 
-        if command.startswith('#'):
+        if command.startswith("#"):
             command = command[:1]
 
         try:
@@ -34,7 +34,7 @@ class WarpCommand(Command):
         except ValueError:
             room_cid = None
 
-        if len(command) != 0 and await cls.do(room_cid, session):
+        if len(command) != 0 and await cls.do(session, room_cid):
             writer.write(
                 RoomTextTemplate(session).get(session.character.room, session.character)
             )

@@ -102,5 +102,5 @@ class PortalUpdateDTO(BaseModel):
     description_to: str | None = None
     alias_from: list[str] = Field(default=[])
     description_from: str | None = None
-    visible: bool | None = None
+    visible: bool | int | None = None
     reversible: bool | None = None

@@ -1,4 +1,4 @@
-from middleware.updater import notify_and_create_event
+from middleware.updater import notify_and_create_event, notify
 from models.account import Account
 from models.character import Character, CharacterCreateDTO, CharacterUpdateDTO
 from models.room import Room
@@ -19,10 +19,6 @@ class CharacterService:
     @staticmethod
     def get_by_username(username: str) -> Character:
         return Character.objects(name=username).first()
-
-    @staticmethod
-    def new(username: str):
-        return CharacterService(CharacterService.get_by_username(username))
 
     @staticmethod
     def register(character: CharacterCreateDTO):
@@ -55,23 +51,25 @@ class CharacterService:
         character = Character.objects(id=character_id).first()
         character.name = new_username
         character.save()
+        notify(character.account.instance.id, "Character", character, "Renamed")
         return character
 
     def update(self, user: CharacterUpdateDTO):
         self._character.update(**user.model_dump(exclude_none=True))
 
     @classmethod
-    def update_property(cls, character_id: str, properties: dict):
+    def update_property(cls, session, character_id: str, properties: dict):
         character = Character.objects(id=character_id).first()
         character.properties.update(**properties)
         character.save()
+        notify(session.instance, "Character", character, "Updated")
 
     def refresh(self):
         self._character = Character.objects(name=self._character.name).first()
 
     @classmethod
-    def move(cls, character_id: str, direction: str) -> None:
-        character = Character.objects(id=character_id).first()
+    def move(cls, session, direction: str) -> None:
+        character = Character.objects(id=session.character.id).first()
         exiting_room = character.room
 
         _, _, entering_room = RoomService.resolve_alias(
@@ -84,6 +82,7 @@ class CharacterService:
         character.room = entering_room
 
         notify_and_create_event(
+            instance=session.instance,
             document_type="Room",
             document=exiting_room,
             document_operation="Exited",
@@ -91,6 +90,7 @@ class CharacterService:
             operator=character,
         )
         notify_and_create_event(
+            instance=session.instance,
             document_type="Room",
             document=character.room,
             document_operation="Entered",
@@ -101,12 +101,13 @@ class CharacterService:
         character.save()
 
     @classmethod
-    def warp(cls, character_id: str, room_cid: str):
-        character = Character.objects(id=character_id).first()
+    def warp(cls, session, room_cid: str):
+        character = Character.objects(id=session.character.id).first()
         room = Room.objects(cId=room_cid).first()
         exiting_room = character.room
 
         notify_and_create_event(
+            instance=session.instance,
             document_type="Room",
             document=exiting_room,
             document_operation="TeleportedOut",
@@ -114,6 +115,7 @@ class CharacterService:
             operator=character,
         )
         notify_and_create_event(
+            instance=session.instance,
             document_type="Room",
             document=room,
             document_operation="TeleportedIn",

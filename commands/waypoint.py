@@ -1,27 +1,32 @@
 from commands.base import Command
+from models.room import Room
 from services.character import CharacterService
-from services.session import TextSession
+from services.session import TextSession, renderer
 
 
 class WaypointCommand(Command):
-    command_prefixes = ["waypoint ", "waypoints "]
+    command_prefixes = ["waypoint ", "waypoints"]
     command_format = ["waypoint <nickname>"]
 
     @classmethod
     async def telnet(
         cls, reader, writer, mqtt_client, command: str, session: TextSession
     ):
-        command = "".join(command.split()[:1])
-        command_properties = " ".join(command.split()[1:])
-        if command == "waypoints":
-            # TODO: Need to return the list of waypoints
-            pass
+        command, command_prefix = cls.get_arguments(command), cls.get_command_prefix(command)
+        if command_prefix.strip() == "waypoints":
+            if waypoints := session.character.properties.get(
+                "waypoints", {}
+            ).items():
+                for waypoint in waypoints:
+                    room = Room.objects.get(id=waypoint[1])
+                    writer.write(f"{str(waypoint[0])}: {room.name}{renderer.nl}")
+            return
 
-        if len(command_properties.strip().lower()) == 0:
-            writer.write("You must give your waypoint a name.")
+        elif not command.strip().lower():
+            writer.write(f"You must give your waypoint a name.{renderer.nl}")
             return
 
         props = session.character.properties.get("waypoints", {})
-        props[command_properties] = session.character.room.id
-        CharacterService.update_property(session.character.id, {"waypoints": props})
-        writer.write(f"Your waypoint {command_properties} has been set.")
+        props[command] = session.character.room.id
+        CharacterService.update_property(session, session.character.id, {"waypoints": props})
+        writer.write(f"Your waypoint {command} has been set.{renderer.nl}")

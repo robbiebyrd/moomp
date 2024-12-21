@@ -14,7 +14,7 @@ class MoveCommand(Command):
     @classmethod
     async def do(cls, command: str, session: TextSession) -> bool:
         if command in RoomService.exits_and_aliases(session.character.room.id):
-            CharacterService.move(session.character.id, direction=command)
+            CharacterService.move(session, direction=command)
             session.character.reload()
             return True
         else:

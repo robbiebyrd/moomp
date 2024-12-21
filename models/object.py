@@ -63,7 +63,7 @@ class ObjectCreateDTO(BaseModel):
     description: str
     character: str | None = None
     room: str | None = None
-    properties: dict | None = Field(default=[])
+    properties: dict | None = Field(default={})
 
 
 class ObjectUpdateDTO(BaseModel):

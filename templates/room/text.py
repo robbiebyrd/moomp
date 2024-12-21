@@ -1,3 +1,4 @@
+import random
 from functools import partial
 from operator import is_not
 from pathlib import Path
@@ -31,6 +32,8 @@ class RoomTextTemplate(BaseTextTemplate):
         default_color_groups = list(
             self._session.ren.color_groups.get("colors").values()
         )
+        random.shuffle(default_color_groups)
+
         default_colors = default_color_groups[randrange(len(default_color_groups))]
 
         exits = RoomService.exits_and_aliases(
