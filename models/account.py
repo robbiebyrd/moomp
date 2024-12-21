@@ -16,7 +16,14 @@ from models.instance import Instance
 
 
 class Account(Document):
-    meta = {"collection": "accounts"}
+    meta = {
+        "collection": "accounts",
+        "indexes": [
+            "$email",
+            ("instance", "+email"),  # compound index
+        ],
+    }
+
     cId = SequenceField(db_field="c")
 
     created_at = DateTimeField(required=True, default=datetime.now)

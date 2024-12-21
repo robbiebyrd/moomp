@@ -15,13 +15,13 @@ class BaseConsumer(ABC):
 
     @classmethod
     @abstractmethod
-    def validate_topic(cls, topic: str) -> bool:
+    def validate_topic(cls, instance_id: str, topic: str) -> bool:
         pass
 
 
 def route_message(mqtt, session: TextSession, msg):
     for module in get_consumer_modules():
-        if module.validate_topic(msg.topic):
+        if module.validate_topic(session.instance.id, msg.topic):
             module.on_message(mqtt, session, msg)
 
 

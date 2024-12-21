@@ -104,19 +104,31 @@ class TextGraphicsRenderer(ColorTextRenderer):
             return ""
 
         colors = get_colors_array(len(options), colors)
+
         if horizontal:
-            return "".join(
-                f"""{self.sp * padding if i != 0 else ''}{self.colorize(option, [colors[i], hex_color_complimentary(colors[i])])}{self.sp * padding if i < len(options) else ''}"""
-                for i, option in enumerate(options)
-            )
+            result = []
 
-        max_length = int(max(map(len, options)) + (padding * 2))
+            for i, option in enumerate(options):
+                prefix = self.sp * padding if i != 0 else ""
+                colorized_option = self.colorize(
+                    option, [colors[i], hex_color_complimentary(colors[i])]
+                )
+                suffix = self.sp * padding if i < len(options) - 1 else ""
+                result.append(f"{prefix}{colorized_option}{suffix}")
 
-        return (
-            "".join(
-                f"{self.nl}"
-                f"{self.colorize(f"{self.sp * padding}{option.ljust(max_length)}{self.sp * padding}", [colors[i], hex_color_complimentary(colors[i])])}"
-                for i, option in enumerate(options)
-            )
-            + self.nl
-        )
+            return "".join(result)
+
+        else:
+            max_length = int(max(map(len, options)) + (padding * 2))
+
+            formatted_options = [
+                f"{self.sp * padding}{option.ljust(max_length)}{self.sp * padding}"
+                for option in options
+            ]
+
+            colored_options = [
+                self.colorize(option, [colors[i], hex_color_complimentary(colors[i])])
+                for i, option in enumerate(formatted_options)
+            ]
+
+            return f"{self.nl}{''.join(colored_options)}{self.nl}"

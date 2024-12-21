@@ -30,13 +30,13 @@ class SayCommand(Command):
 
         messages = [
             {
-                "topic": f"/Speech/{document.id}/Room/{room.id}/Speaker/{session.character.id}",
+                "topic": f"/{session.instance.id}/Speech/{document.id}/Room/{room.id}/Speaker/{session.character.id}",
                 "payload": json.dumps(doc),
             }
             for room in document.rooms
         ] + [
             {
-                "topic": f"/Speech/{document.id}/Listener/{listener.id}/Speaker/{session.character.id}",
+                "topic": f"/{session.instance.id}/Speech/{document.id}/Listener/{listener.id}/Speaker/{session.character.id}",
                 "payload": json.dumps(doc),
             }
             for listener in document.listeners

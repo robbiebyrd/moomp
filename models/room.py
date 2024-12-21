@@ -47,7 +47,7 @@ class RoomCreateDTO(BaseModel):
     visible: bool | None = True
 
 
-class RoomUpdateDTO(BaseModel):
+class RoomUpdateDTO(BaseModel, extra="allow"):
     """
     A Data Transfer Object class for updating a Room.
 
@@ -65,4 +65,4 @@ class RoomUpdateDTO(BaseModel):
     parent_id: str | None = None
     name: str | None = None
     description: str | None = None
-    visible: bool | None = None
+    visible: bool | int | None = None
