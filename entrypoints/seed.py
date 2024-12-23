@@ -10,6 +10,8 @@ from models.instance import Instance
 from models.object import Object
 from models.portal import Portal
 from models.room import Room
+from models.script import Script, ScriptTypes
+from models.speech import Speech
 from services.authn import AuthNService
 
 
@@ -96,6 +98,18 @@ class Seeder:
                     model_settings.search_fields,
                     model_settings.hydrate_fields,
                 )
+
+        characters = Character.objects()
+        speech = Speech.objects()
+        a = Script.objects.create(
+            name="Test Script",
+            scripts=[
+                {"type": ScriptTypes.Character, "script": "", "attached": characters},
+                {"type": ScriptTypes.Speech, "script": "", "attached": speech},
+            ],
+            owner=characters[0],
+        )
+        a.save()
 
     def hydrate(self, obj, model_type, field):
         if (
