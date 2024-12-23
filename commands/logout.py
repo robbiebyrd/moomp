@@ -4,7 +4,7 @@ from services.telnet.auth_n import logout
 
 
 class LogoutCommand(Command):
-    command_prefixes = ["logout"]
+    command_prefixes = ["logout", "quit"]
 
     @classmethod
     async def telnet(

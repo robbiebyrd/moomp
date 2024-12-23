@@ -6,7 +6,7 @@ from ansi_escapes import ansiEscapes as ae
 
 from commands import base
 from commands.register import RegisterCommand
-from middleware.updater import notify_and_create_event
+from middleware.updater import notify_and_create_event, notify
 from models.instance import Instance
 from models.room import Room
 from services.mqtt import MQTTService
@@ -85,13 +85,15 @@ class TelnetService:
 
         # Now that we've logged in, send an alert to the room where this character will appear.
         notify_and_create_event(
+            self.session.instance,
             "Character",
             self.session.character,
             "LoggedIn",
             "Room",
             self.session.character.room,
         )
-        notify_and_create_event(
+        notify(
+            self.session.instance,
             "Room",
             self.session.character.room,
             "LoggedIn",

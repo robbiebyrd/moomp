@@ -1,19 +1,20 @@
 from middleware.updater import notify_and_create_event
 from models.character import Character
 from services.authn import AuthNService
-from services.telnet.input import parse_input_type, input_line, select
+from services.room import RoomService
+from services.telnet.input import input_line, parse_input_type, select
 from templates.utils.authn.authn import AuthNUtils
 from utils.db import connect_db
 
 connect_db()
 
-# TODO: THIS IS ONLY FOR TESTING PURPOSES
 autologin = None
+
 config = AuthNUtils().config
 
 
 async def login(session):
-    for tries in range(5):
+    for _ in range(5):
         if autologin:
             account = AuthNService.authorize(*autologin)
         else:
@@ -59,6 +60,10 @@ async def login(session):
             break
 
     character.online = True
+
+    if not character.room:
+        character.room = RoomService.get_by_name(default_room)
+
     character.save()
 
     session.writer.write(
@@ -68,15 +73,18 @@ async def login(session):
 
 
 def logout(session):
-    session.character.online = False
-    session.character.save()
-    notify_and_create_event(
-        "Room",
-        session.character.room,
-        "LoggedOut",
-        "Character",
-        session.character,
-    )
-    session.mqtt_client.loop_stop()
-    session.writer.write(f"Goodbye! {session.ren.nl}")
-    session.writer.close()
+    if session.character:
+        session.character.online = False
+        session.character.save()
+        notify_and_create_event(
+            session.instance,
+            "Room",
+            session.character.room,
+            "LoggedOut",
+            "Character",
+            session.character,
+        )
+        session.mqtt_client.loop_stop()
+    if session.writer:
+        session.writer.write(f"Goodbye! {session.ren.nl}")
+        session.writer.close()

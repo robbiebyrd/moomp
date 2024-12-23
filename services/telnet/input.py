@@ -9,6 +9,50 @@ from utils.color import hex_color_complimentary, get_colors_array
 ren = ColorTextRenderer()
 
 
+def create_list(
+    session,
+    message,
+    selected,
+    spacer: str = ren.sp,
+    center: bool = False,
+    h_padding: int = 1,
+    fg=None,
+    bg=None,
+    options=None,
+    pad=1,
+):
+    if not options:
+        return
+
+    if fg is None:
+        fg = ren.color_groups.get("default")
+
+    fg = get_colors_array(len(options), fg)
+
+    if bg is None:
+        bg = [hex_color_complimentary(fg[len(fg) - 1 - i]) for i in range(len(fg))]
+
+    session.writer.write(ren.enc(ren.ct(f"{message}", ren.color_theme.input) + ren.nl))
+    length = max(map(len, options)) + (h_padding * 2)
+
+    session.writer.write(
+        ren.enc(
+            "".join(
+                [
+                    ren.ct(
+                        f"{ren.sp * pad}{i + 1}:"
+                        f" {ren.style('reverse') if selected is not None and i == selected else ''}"
+                        f" {x.center(length, spacer) if center else x.ljust(length, spacer)}",
+                        [fg[i], bg[i]],
+                    )
+                    + ren.nl
+                    for i, x in enumerate(options)
+                ]
+            ),
+        )
+    )
+
+
 def parse_input_type(line: str):
     # Try to convert the string to a float
     with contextlib.suppress(ValueError):
@@ -43,35 +87,18 @@ async def select(
     escape_key_seen = False
     ansi_escape_header_key_seen = False
 
-    def create_list(fg, bg, ops, pad):
-        session.writer.write(
-            ren.enc(ren.ct(f"{message}", ren.color_theme.input) + ren.nl)
-        )
-        length = max(map(len, ops)) + (h_padding * 2)
-
-        fg = get_colors_array(len(ops), fg)
-
-        if bg is None:
-            bg = [hex_color_complimentary(fg[len(fg) - 1 - i]) for i in range(len(fg))]
-
-        session.writer.write(
-            ren.enc(
-                "".join(
-                    [
-                        ren.ct(
-                            f"{ren.sp * pad}{i + 1}:"
-                            f" {ren.style('reverse') if selected is not None and i == selected else ''}"
-                            f" {x.center(length, spacer) if center else x.ljust(length, spacer)}",
-                            [fg[i], bg[i]],
-                        )
-                        + ren.nl
-                        for i, x in enumerate(ops)
-                    ]
-                ),
-            )
-        )
-
-    create_list(colors, bg_colors, options, h_padding)
+    create_list(
+        session,
+        message,
+        selected,
+        spacer,
+        center,
+        h_padding,
+        colors,
+        bg_colors,
+        options,
+        h_padding,
+    )
 
     while True:
         char_input = await session.reader.read(1)
@@ -91,7 +118,18 @@ async def select(
         if escape_key_seen is True and ansi_escape_header_key_seen is True:
             session.writer.write("".join([ae.eraseLines(len(options) + 3)]) + ren.nl)
             selected = handle_menu_select(char_input, len(options), selected)
-            create_list(colors, bg_colors, options, h_padding)
+            create_list(
+                session,
+                message,
+                selected,
+                spacer,
+                center,
+                h_padding,
+                colors,
+                bg_colors,
+                options,
+                h_padding,
+            )
             escape_key_seen, ansi_escape_header_key_seen = False, False
             continue
         if ord(char_input) in {127}:
@@ -106,7 +144,18 @@ async def select(
                 session.writer.write(
                     ren.ct("This value is required", *ren.color_theme.error) + ren.nl
                 )
-                create_list(colors, bg_colors, options, h_padding)
+                create_list(
+                    session,
+                    message,
+                    selected,
+                    spacer,
+                    center,
+                    h_padding,
+                    colors,
+                    bg_colors,
+                    options,
+                    h_padding,
+                )
                 continue
             session.writer.write(ren.nl)
             return parse_input_type(line)

@@ -14,7 +14,8 @@ from templates.utils.text.graphics import TextGraphicsRenderer
 
 ren = TextGraphicsRenderer()
 
-PASSWORD_POLICY = 'default'
+PASSWORD_POLICY = "default"
+
 
 class RegisterCommand(Command):
     command_prefixes = ["register"]
@@ -25,31 +26,41 @@ class RegisterCommand(Command):
             email_input = await input_line(session, "Email Address: ")
             already_emails = Account.objects(email=email_input)
             if len(already_emails) > 0:
-                session.writer.write(f"That email address is already taken, please try another one.{ren.nl}")
+                session.writer.write(
+                    f"That email address is already taken, please try another one.{ren.nl}"
+                )
                 continue
             try:
-                email_validated = validate_email(email_input, check_deliverability=False)
+                email_validated = validate_email(
+                    email_input, check_deliverability=False
+                )
                 email_input = email_validated.normalized
             except EmailNotValidError:
                 session.writer.write(f"That email address is invalid.{ren.nl}")
                 continue
             break
         while True:
-            password_input = str(await input_line(session, "Password: ", mask_character="*"))
+            password_input = str(
+                await input_line(session, "Password: ", mask_character="*")
+            )
             if not AuthNService().password_policy(password_input, PASSWORD_POLICY):
-                session.writer.write(f"That password does not meet the complexity requirements.{ren.nl}")
+                session.writer.write(
+                    f"That password does not meet the complexity requirements.{ren.nl}"
+                )
                 continue
             break
         new_account = AccountService.register(
             AccountCreateDTO(
                 email=email_input,
                 password=str(password_input),
-                instance_id=str(session.instance.id)
+                instance_id=str(session.instance.id),
             )
         )
 
         notify("Account", new_account, "Created")
-        session.writer.write(f"Your account has been created! {ren.nl} Now, create a character to use in-game.{ren.nl}")
+        session.writer.write(
+            f"Your account has been created! {ren.nl} Now, create a character to use in-game.{ren.nl}"
+        )
         return new_account
 
     @classmethod
@@ -57,20 +68,23 @@ class RegisterCommand(Command):
         while True:
             character_name_input = await input_line(
                 session,
-                ren.ct("Give your new character a username: ", 'blue'),
+                ren.ct("Give your new character a username: ", "blue"),
                 required=True,
             )
 
             if len(Character.objects(name=character_name_input)) == 0:
                 break
 
-            session.writer.write(f"That character username is already taken, please try another one.{ren.nl}")
+            session.writer.write(
+                f"That character username is already taken, please try another one.{ren.nl}"
+            )
 
-
-        display_name_input = await input_line(session, "Give your new character a friendly display name: ")
+        display_name_input = await input_line(
+            session, "Give your new character a friendly display name: "
+        )
 
         return CharacterService.register(
-            user=CharacterCreateDTO(
+            character=CharacterCreateDTO(
                 name=character_name_input,
                 display=display_name_input,
                 account_id=str(new_account.id),
@@ -78,12 +92,12 @@ class RegisterCommand(Command):
         )
 
     @classmethod
-    async def telnet(cls, reader, writer, mqtt_client, command: str, session: "TextSession"):
+    async def telnet(
+        cls, reader, writer, mqtt_client, command: str, session: "TextSession"
+    ):
         account = await cls.register_account(session)
         character = await cls.register_character(session, account)
         if character:
-            writer.write(
-                CharacterTextTemplate(session).get(character, 'new')
-            )
+            writer.write(CharacterTextTemplate(session).get(character, "new"))
         else:
             writer.write(f"Something went wrong. {ren.nl}")

@@ -10,6 +10,8 @@ from models.instance import Instance
 from models.object import Object
 from models.portal import Portal
 from models.room import Room
+from models.script import Script, ScriptTypes
+from models.speech import Speech
 from services.authn import AuthNService
 
 
@@ -82,10 +84,11 @@ class Seeder:
 
     def seed(self):
         # Encode passwords in accounts!
-        for i, account in enumerate(self._content.get("accounts")):
-            self._content.get("accounts")[i].update(
-                {"password": AuthNService.encrypt_password(account.get("password"))}
-            )
+        if self._content.get("accounts"):
+            for i, account in enumerate(self._content.get("accounts")):
+                self._content.get("accounts")[i].update(
+                    {"password": AuthNService.encrypt_password(account.get("password"))}
+                )
 
         for model_type, model_settings in self.model_type_settings.items():
             for item in self._content.get(f"{model_type}s", []):
@@ -95,6 +98,18 @@ class Seeder:
                     model_settings.search_fields,
                     model_settings.hydrate_fields,
                 )
+
+        characters = Character.objects()
+        speech = Speech.objects()
+        a = Script.objects.create(
+            name="Test Script",
+            scripts=[
+                {"type": ScriptTypes.Character, "script": "", "attached": characters},
+                {"type": ScriptTypes.Speech, "script": "", "attached": speech},
+            ],
+            owner=characters[0],
+        )
+        a.save()
 
     def hydrate(self, obj, model_type, field):
         if (
@@ -118,7 +133,7 @@ class Seeder:
         if not self.model_type_settings[model_type].item_type:
             raise ValueError(f"Could not find model type {model_type}")
 
-        print(f"Creating {model_type}.")
+        print(f"Seeding {model_type}.")
 
         for hydrate in hydrate_fields:
             print(f"Hydrating field {hydrate[1]} of type {hydrate[0]}.")
@@ -129,11 +144,17 @@ class Seeder:
             k[0]: item.get(k[1]) for k in list(search_fields.items())
         }
 
-        if not self.model_type_settings[model_type].item_type.objects(
-            **updated_search_fields
+        if (
+            existing_item := self.model_type_settings[model_type]
+            .item_type.objects(**updated_search_fields)
+            .first()
         ):
+            print(f"Updating {model_type}: {updated_search_fields}.")
+            # self.model_type_settings[model_type].item_type.modify(
+            #     query=updated_search_fields, **item
+            # )
+
+        else:
             print(f"Creating {model_type}: {updated_search_fields}.")
             self.model_type_settings[model_type].item_type(**item).save()
             print(f"Saved item: {updated_search_fields}.")
-        else:
-            print("Already exits, skipping.")

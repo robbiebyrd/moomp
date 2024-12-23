@@ -34,7 +34,7 @@ class AccountService:
             email=acct.email, password=acct.password, instance=instance
         ).save()
 
-        notify_and_create_event("account", acct_record, "Created")
+        notify_and_create_event(instance, "account", acct_record, "Created")
 
         return acct_record
 
