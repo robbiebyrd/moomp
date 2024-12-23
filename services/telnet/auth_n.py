@@ -1,3 +1,4 @@
+from middleware.updater import notify_and_create_event
 from models.character import Character
 from services.authn import AuthNService
 from services.room import RoomService
