@@ -12,7 +12,6 @@ from mongoengine import (
     EmbeddedDocument,
     EnumField,
     EmbeddedDocumentField,
-    GenericReferenceField,
 )
 from pydantic import BaseModel, Field
 
@@ -23,8 +22,8 @@ ScriptTypes = Enum("ScriptTypes", [x._class_name for x in SCRIPT_OBJECT_TYPES])
 
 class ScriptType(EmbeddedDocument):
     type = EnumField(ScriptTypes)
-    script = StringField()
-    attached = ListField(GenericReferenceField())
+    script = StringField(required=True)
+    topics = ListField(default=[])
 
 
 class Script(Document):

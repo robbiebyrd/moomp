@@ -79,6 +79,7 @@ def logout(session):
         session.character.online = False
         session.character.save()
         notify_and_create_event(
+            session.instance,
             "Room",
             session.character.room,
             "LoggedOut",

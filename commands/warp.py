@@ -27,7 +27,7 @@ class WarpCommand(Command):
         command = cls.get_arguments(command)
 
         if command.startswith("#"):
-            command = command[:1]
+            command = command[1:]
 
         try:
             room_cid = int(command)

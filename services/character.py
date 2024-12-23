@@ -80,48 +80,45 @@ class CharacterService:
             return
 
         character.room = entering_room
-
-        notify_and_create_event(
-            instance=session.instance,
-            document_type="Room",
-            document=exiting_room,
-            document_operation="Exited",
-            operator_type="Character",
-            operator=character,
-        )
-        notify_and_create_event(
-            instance=session.instance,
-            document_type="Room",
-            document=character.room,
-            document_operation="Entered",
-            operator_type="Character",
-            operator=character,
-        )
-
         character.save()
+
+        cls.notify_move(session, exiting_room, ["TeleportedIn", "TeleportedOut"])
 
     @classmethod
     def warp(cls, session, room_cid: str):
         character = Character.objects(id=session.character.id).first()
+        room_cid = room_cid.removeprefix("#")
         room = Room.objects(cId=room_cid).first()
         exiting_room = character.room
 
-        notify_and_create_event(
-            instance=session.instance,
-            document_type="Room",
-            document=exiting_room,
-            document_operation="TeleportedOut",
-            operator_type="Character",
-            operator=character,
-        )
-        notify_and_create_event(
-            instance=session.instance,
-            document_type="Room",
-            document=room,
-            document_operation="TeleportedIn",
-            operator_type="Character",
-            operator=character,
-        )
-
         character.room = room
         character.save()
+
+        cls.notify_move(session, exiting_room, ["TeleportedIn", "TeleportedOut"])
+
+    @classmethod
+    def notify_move(cls, session, exiting_room: Room, action=None):
+        if action is None:
+            action = ["Entered", "Exited"]
+
+        def create_event(
+            document_type, document, document_operation, operator_type, operator
+        ):
+            notify_and_create_event(
+                instance=session.instance,
+                document_type=document_type,
+                document=document,
+                document_operation=document_operation,
+                operator_type=operator_type,
+                operator=operator,
+            )
+
+        events = [
+            ("Room", session.character.room, action[0], "Character", session.character),
+            ("Character", session.character, action[0], "Room", session.character.room),
+            ("Room", exiting_room, action[1], "Character", session.character),
+            ("Character", session.character, action[1], "Room", exiting_room),
+        ]
+
+        for event in events:
+            create_event(*event)
