@@ -101,7 +101,11 @@ class ColorTextRenderer(StyleTextRenderer):
             colors = self.color(color_name)
         if isinstance(color_name, list):
             if len(color_name) == 2:
-                colors = self.color(color_name[0]) + self.color(color_name[1], True)
+                print("length was 2")
+                colors = "".join(
+                    [self.color(color_name[0]), self.color(color_name[1], True)]
+                )
+                print("joined: " + colors)
             elif len(color_name) > 0:
                 colors = self.color(color_name[0])
         return colors + message + self.reset()

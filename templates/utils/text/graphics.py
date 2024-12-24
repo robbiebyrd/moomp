@@ -10,7 +10,7 @@ class TextGraphicsRenderer(ColorTextRenderer):
     def __init__(self, config_file: str | None = None):
         super().__init__(config_file)
 
-        self.colors = self.color_groups.get("brightness").get("darkest")
+        self.colors = self.color_groups.get("brightness").get("vivid")
         self.graphics_box = self.config.text.box[self.config.settings.graphics.box]
 
     def box(
@@ -97,6 +97,7 @@ class TextGraphicsRenderer(ColorTextRenderer):
         options: list[str],
         colors: list[str],
         padding: int = 1,
+        inner_padding: int = 1,
         horizontal: bool = True,
     ):
 
@@ -110,11 +111,16 @@ class TextGraphicsRenderer(ColorTextRenderer):
 
             for i, option in enumerate(options):
                 prefix = self.sp * padding if i != 0 else ""
+                option = (
+                    "".join([inner_padding * self.sp, option, inner_padding * self.sp])
+                    if inner_padding != 0
+                    else option
+                )
                 colorized_option = self.colorize(
                     option, [colors[i], hex_color_complimentary(colors[i])]
                 )
                 suffix = self.sp * padding if i < len(options) - 1 else ""
-                result.append(f"{prefix}{colorized_option}{suffix}")
+                result.append(f"{prefix}{self.style("bold")}{colorized_option}{suffix}")
 
             return "".join(result)
 

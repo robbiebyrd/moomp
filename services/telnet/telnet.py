@@ -129,6 +129,7 @@ class TelnetService:
             while True:
                 await refresh_subscriptions(self.session)
 
+                print(self.session.ren.color_theme.inputActive)
                 # Get input one character at a time.
                 char_input = await self.session.reader.read(1)
 
@@ -215,7 +216,8 @@ class TelnetService:
                         char = str(char_input)
                         # Any other characters input be added to the line buffer
                         self.session.writer.echo(
-                            self.session.ren.ct(
+                            self.session.ren.reset()
+                            + self.session.ren.ct(
                                 char, self.session.ren.color_theme.inputActive
                             )
                         )
