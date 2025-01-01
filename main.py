@@ -1,5 +1,6 @@
 import argparse
 
+from entrypoints.mqtt import MQTTConsumer
 from entrypoints.seed import Seeder
 from entrypoints.telnet import TelnetServer
 from utils.clean import clean
@@ -30,6 +31,7 @@ def main():
         case "clean":
             clean()
         case "telnet":
+            MQTTConsumer(args.instance).serve()
             TelnetServer(args.instance).serve()
         case _:
             return

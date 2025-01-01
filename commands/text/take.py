@@ -1,4 +1,4 @@
-from commands.base import Command
+from commands.text.base import Command
 from middleware.updater import notify_and_create_event
 from models.object import Object
 from services.session import TextSession

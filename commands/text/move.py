@@ -1,11 +1,8 @@
-from commands.base import Command
+from commands.text.base import Command
 from services.character import CharacterService
 from services.room import RoomService
 from services.session import TextSession
 from templates.room.text import RoomTextTemplate
-from templates.utils.text.graphics import TextGraphicsRenderer
-
-ren = TextGraphicsRenderer()
 
 
 class MoveCommand(Command):
@@ -30,4 +27,4 @@ class MoveCommand(Command):
                 RoomTextTemplate(session).get(session.character.room, session.character)
             )
         else:
-            writer.write(f"I can't go that way.{ren.nl}")
+            writer.write(f"I can't go that way.{session.ren.nl}")

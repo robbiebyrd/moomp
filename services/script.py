@@ -1,19 +1,23 @@
+import json
+import os
 from typing import Union
 
 from lupa.lua54 import LuaRuntime
+from paho.mqtt import publish
 
-from models.character import Character
 from models.script import Script, ScriptType
+from services.character import CharacterService
 from services.room import RoomService
 from utils.types import SCRIPT_OBJECT_TYPES
 
 
 class ScriptService:
-    def __init__(self):
+    def __init__(self, instance_id: str):
         self._runtime = LuaRuntime()
+        self._instance_id = instance_id
 
     def run(self, script_id: str, obj: Union[SCRIPT_OBJECT_TYPES]):
-        script_object = Script.objects(cId=script_id).first()
+        script_object = Script.objects(id=script_id).first()
         if not script_object:
             return
 
@@ -24,14 +28,7 @@ class ScriptService:
     def _get_options(obj: Union[SCRIPT_OBJECT_TYPES]) -> tuple:
         match obj.__class__.__name__:
             case "Character":
-                return (
-                    obj,
-                    obj.inventory,
-                    obj.room,
-                    Character.objects(room=obj.room, online=True),
-                    obj.account,
-                    RoomService.exits(obj.room.id),
-                )
+                return CharacterService(obj).context()
             case "Room":
                 return obj, *RoomService.here(obj.id), RoomService.exits(obj.id)
             case "Object":
@@ -43,24 +40,26 @@ class ScriptService:
 
     def _execute_scripts(self, script_object: Script, class_name: str, options: tuple):
         for script in script_object.scripts:
-            if script.type.name == class_name:
-                self._execute_single_script(script, options)
+            self._execute_single_script(script, options)
 
     def _execute_single_script(self, script: ScriptType, options: tuple):
         try:
             func = self._runtime.eval(script.script)
             result = func(*options)
-            self._handle_script_result(result)
+            return self._handle_script_result(result)
         except Exception as e:
             self._handle_script_error(e)
 
     def _handle_script_result(self, result):
-        if isinstance(result, tuple) and len(result) > 0:
-            char = result[0]
-            if isinstance(char, Character):
-                print(char)
-        else:
-            print(f"Unexpected result format: {result}")
+        for v in dict(result).values():
+            [a, b] = list(dict(v).values())
+
+            publish.single(
+                f"/{self._instance_id}{a}",
+                json.dumps(dict(b)),
+                hostname=os.environ.get("MQTT_HOST"),
+                port=int(os.environ.get("MQTT_PORT")),
+            )
 
     def _handle_script_error(self, error: Exception):
         print(f"Error executing script: {error}")

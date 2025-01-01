@@ -25,12 +25,12 @@ def create_list(
         return
 
     if fg is None:
-        fg = ren.color_groups.get("default")
+        fg = ren.color_groups.get("brightness")
 
     fg = get_colors_array(len(options), fg)
 
     if bg is None:
-        bg = [hex_color_complimentary(fg[len(fg) - 1 - i]) for i in range(len(fg))]
+        bg = [hex_color_complimentary(i) for i in fg]
 
     session.writer.write(ren.enc(ren.ct(f"{message}", ren.color_theme.input) + ren.nl))
     length = max(map(len, options)) + (h_padding * 2)

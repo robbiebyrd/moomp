@@ -4,7 +4,7 @@ import os
 import paho.mqtt.publish as publish
 from pluralizer import Pluralizer
 
-from commands.base import Command
+from commands.text.base import Command
 from models.speech import Speech
 from services.portal import PortalService
 from services.telnet.telnet import TextSession
