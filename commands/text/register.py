@@ -1,6 +1,6 @@
 from email_validator import validate_email, EmailNotValidError
 
-from commands.base import Command
+from commands.text.base import Command
 from middleware.updater import notify
 from models.account import Account, AccountCreateDTO
 from models.character import Character, CharacterCreateDTO
@@ -72,7 +72,7 @@ class RegisterCommand(Command):
                 required=True,
             )
 
-            if len(Character.objects(name=character_name_input)) == 0:
+            if Character.objects(name=character_name_input).count() == 0:
                 break
 
             session.writer.write(

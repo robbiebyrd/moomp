@@ -1,5 +1,8 @@
 import json
 
+from paho.mqtt import client as mqtt_client
+
+from consumers.base import BaseConsumer
 from middleware.updater import unpack_topic
 from models.character import Character
 from services.session import TextSession
@@ -11,13 +14,15 @@ renderer = ColorTextRenderer()
 ct = renderer.colorize
 
 
-class SpeechConsumer:
+class SpeechConsumer(BaseConsumer):
 
     def __init__(self):
         self._connection = connect_db()
 
     @classmethod
-    def on_message(cls, mqtt, session: TextSession, msg):
+    def on_message(
+        cls, mqtt: mqtt_client, session: TextSession, msg: mqtt_client.MQTTMessage
+    ):
         [_, room_id, speaker_id] = list(
             unpack_topic(f"/{session.instance.id}/Speech/+/Room/+/Speaker/+", msg.topic)
         )

@@ -1,4 +1,4 @@
-from commands.base import Command
+from commands.text.base import Command
 from services.session import TextSession
 from services.telnet.auth_n import logout
 

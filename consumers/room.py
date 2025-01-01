@@ -1,6 +1,9 @@
 import re
 
-from middleware.updater import unpack_topic
+from paho.mqtt import client as mqtt_client
+
+from consumers.base import BaseConsumer
+from middleware.updater import unpack_topic, mqtt_match
 from services.character import CharacterService
 from services.room import RoomService
 from services.session import TextSession
@@ -9,7 +12,7 @@ from utils.db import connect_db
 connect_db()
 
 
-class RoomConsumer:
+class RoomConsumer(BaseConsumer):
     allowed_operators = [
         "Entered",
         "Exited",
@@ -20,12 +23,20 @@ class RoomConsumer:
     ]
 
     @classmethod
-    def on_message(cls, mqtt, session: TextSession, msg):
-        [room_id, operator, entrant_id] = list(
-            unpack_topic(f"/{session.instance.id}/Room/+/+/Character/+", msg.topic)
-        )
+    def on_message(
+        cls, mqtt: mqtt_client, session: TextSession, msg: mqtt_client.MQTTMessage
+    ):
+        if mqtt_match(msg.topic, f"/{session.instance.id}/Room/+/+/Character/+"):
+            [room_id, operator, entrant_id] = list(
+                unpack_topic(f"/{session.instance.id}/Room/+/+/Character/+", msg.topic)
+            )
+        else:
+            return
 
         if operator not in cls.allowed_operators:
+            return
+
+        if not all([room_id, operator, entrant_id, session.character, session.ren]):
             return
 
         if entrant_id == str(session.character.id) or room_id != str(
@@ -52,6 +63,6 @@ class RoomConsumer:
                     f" {operator.lower()}.{session.ren.nl}"
                 )
 
-    @staticmethod
-    def validate_topic(instance_id: str, topic: str) -> bool:
+    @classmethod
+    def validate_topic(cls, instance_id: str, topic: str) -> bool:
         return bool(topic.startswith(f"/{instance_id}/Room/"))

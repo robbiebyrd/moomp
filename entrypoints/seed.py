@@ -10,8 +10,7 @@ from models.instance import Instance
 from models.object import Object
 from models.portal import Portal
 from models.room import Room
-from models.script import Script, ScriptTypes
-from models.speech import Speech
+from models.script import Script
 from services.authn import AuthNService
 
 
@@ -98,14 +97,25 @@ class Seeder:
                     model_settings.search_fields,
                     model_settings.hydrate_fields,
                 )
-
+        instance = Instance.objects.all()[0]
         characters = Character.objects()
-        speech = Speech.objects()
+
         a = Script.objects.create(
             name="Test Script",
+            instance=instance,
             scripts=[
-                {"type": ScriptTypes.Character, "script": "", "attached": characters},
-                {"type": ScriptTypes.Speech, "script": "", "attached": speech},
+                {
+                    "script": """function(obj, obj1, obj2)
+    mytable = {}
+    mytable["msg"] = tostring(obj.name) .. " Test"
+    mytable2 = {}
+    mytable2["msg"] = tostring(obj2.name) .. "Test"
+    d = "/Room/" .. tostring(obj["id"]) .. "/Properties/Update"
+    return{ {d, mytable} }
+end
+""",
+                    "topics": ["/Room/#", "/Character/#"],
+                },
             ],
             owner=characters[0],
         )

@@ -19,6 +19,10 @@ class RoomService:
         return Room.objects(id=room_id).first()
 
     @staticmethod
+    def get_by_cid(c_id: int):
+        return Room.objects(cId=c_id).first()
+
+    @staticmethod
     def get_by_name(room_name: str):
         return Room.objects(name=room_name).first()
 

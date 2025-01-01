@@ -1,8 +1,10 @@
 from abc import ABC, abstractmethod
 from typing import List
 
+from paho.mqtt import client as mqtt_client
+
 import consumers
-from services.session import TextSession
+from services.session import Session
 from utils.system import import_modules
 
 
@@ -10,7 +12,9 @@ class BaseConsumer(ABC):
 
     @classmethod
     @abstractmethod
-    def on_message(cls, mqtt, session: TextSession, msg) -> str | None:
+    def on_message(
+        cls, mqtt: mqtt_client, session: Session, msg: mqtt_client.MQTTMessage
+    ) -> str | None:
         pass
 
     @classmethod
@@ -19,7 +23,7 @@ class BaseConsumer(ABC):
         pass
 
 
-def route_message(mqtt, session: TextSession, msg):
+def route_message(mqtt: mqtt_client, session: Session, msg: mqtt_client.MQTTMessage):
     for module in get_consumer_modules():
         if module.validate_topic(session.instance.id, msg.topic):
             module.on_message(mqtt, session, msg)

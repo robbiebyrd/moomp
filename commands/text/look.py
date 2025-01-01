@@ -1,7 +1,7 @@
 ﻿from functools import partial
 from operator import is_not
 
-from commands.base import Command
+from commands.text.base import Command
 from services.room import RoomService
 from services.session import TextSession
 from templates.character.text import CharacterTextTemplate

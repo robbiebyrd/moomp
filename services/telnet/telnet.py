@@ -4,9 +4,9 @@ from datetime import datetime
 from Cheetah.Template import Template
 from ansi_escapes import ansiEscapes as ae
 
-from commands import base
-from commands.register import RegisterCommand
-from middleware.updater import notify_and_create_event, notify
+from commands.text import base
+from commands.text.register import RegisterCommand
+from middleware.updater import notify_and_create_event
 from models.instance import Instance
 from models.room import Room
 from services.mqtt import MQTTService
@@ -35,7 +35,6 @@ class TelnetService:
         self.session.mqtt_client = MQTTService(
             os.environ.get("MQTT_HOST"), os.environ.get("MQTT_PORT"), self.session
         ).client()
-        self.session.mqtt_client.loop_start()
         self.session.ren = TextGraphicsRenderer()
 
     def write_line(self, message, add_newline: bool = True):
@@ -92,11 +91,11 @@ class TelnetService:
             "Room",
             self.session.character.room,
         )
-        notify(
+        notify_and_create_event(
             self.session.instance,
             "Room",
             self.session.character.room,
-            "LoggedIn",
+            "Entered",
             "Character",
             self.session.character,
         )
@@ -147,10 +146,27 @@ class TelnetService:
                         # Reload the character and show the Room text again
                         self.session.character.reload()
                         self.write_line(
+                            self.session.ren.ct(
+                                "look here", self.session.ren.color_theme.input
+                            ),
+                        )
+                        self.write_line(
                             RoomTextTemplate(self.session).get(
                                 self.session.character.room, self.session.character
-                            )
+                            ),
+                            False,
                         )
+                        self.write_line(
+                            "".join(
+                                [
+                                    ae.eraseLine,
+                                    ae.cursorTo(0),
+                                    self.session.ren.reset(),
+                                ]
+                            ),
+                            False,
+                        )
+
                     case 8 | 127:  # Backspace/Delete
                         # Remove the last entered character from the display and line buffer
                         line = line[:-1]
@@ -215,7 +231,8 @@ class TelnetService:
                         char = str(char_input)
                         # Any other characters input be added to the line buffer
                         self.session.writer.echo(
-                            self.session.ren.ct(
+                            self.session.ren.reset()
+                            + self.session.ren.ct(
                                 char, self.session.ren.color_theme.inputActive
                             )
                         )

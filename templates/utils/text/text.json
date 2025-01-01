@@ -12,11 +12,10 @@
         "#5f0000"
       ],
       "input": [
-        "#b2b2b2"
+        "#afffaf"
       ],
       "inputActive": [
-        "#000000",
-        "#b2b2b2"
+        "#afafd7"
       ],
       "chat": [
         "afffff"

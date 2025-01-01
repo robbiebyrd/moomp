@@ -1,4 +1,4 @@
-from commands.base import Command
+from commands.text.base import Command
 from models.room import RoomCreateDTO
 from services.room import RoomService
 from services.session import TextSession

@@ -118,7 +118,7 @@ class ColorEncodingTypes(Enum):
 def color_kind(color):
     if isinstance(color, list | tuple) and len(list(color)) == 3:
         return ColorEncodingTypes.RGB
-    elif isinstance(color, str) and color.startswith("#") and 3 < len(color) < 8:
+    elif isinstance(color, str) and color.startswith("#") and 3 <= len(color[1:]) <= 6:
         return ColorEncodingTypes.HEX
     elif isinstance(color, str):
         return ColorEncodingTypes.NAME
@@ -126,7 +126,7 @@ def color_kind(color):
         return None
 
 
-def get_colors_array(length: int, colors: list | None = None):
+def get_colors_array(length: int, colors: list | None = None) -> list[str]:
     colors = [colors] if type(colors) is not list else colors
     colors = [
         item

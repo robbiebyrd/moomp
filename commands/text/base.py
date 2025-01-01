@@ -67,4 +67,5 @@ class Command(ABC):
 
 
 def get_command_modules() -> List[Command]:
-    return import_modules(commands.__all__, "telnet", "commands.", "Command")
+    return import_modules(commands.text.__all__, "telnet", "commands.text.", "Command")
+

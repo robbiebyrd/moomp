@@ -8,6 +8,7 @@ from utils.db import connect_db
 
 connect_db()
 
+# autologin = ["wizard@yourhost.com", "wizard"]
 autologin = None
 
 config = AuthNUtils().config
@@ -49,7 +50,7 @@ async def login(session):
 
         character_input = parse_input_type(character_input)
 
-        if isinstance(character_input, int) and len(characters) >= character_input:
+        if isinstance(character_input, int) and characters.count() >= character_input:
             character = characters[character_input - 1]
             break
 
@@ -62,7 +63,7 @@ async def login(session):
     character.online = True
 
     if not character.room:
-        character.room = RoomService.get_by_name(default_room)
+        character.room = RoomService.get_by_name("Main Entrance")
 
     character.save()
 
@@ -80,9 +81,17 @@ def logout(session):
             session.instance,
             "Room",
             session.character.room,
-            "LoggedOut",
+            "Exited",
             "Character",
             session.character,
+        )
+        notify_and_create_event(
+            session.instance,
+            "Character",
+            session.character,
+            "LoggedOut",
+            "Room",
+            session.character.room,
         )
         session.mqtt_client.loop_stop()
     if session.writer:

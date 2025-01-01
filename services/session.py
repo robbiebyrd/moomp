@@ -17,6 +17,7 @@ class Session:
     created: datetime = datetime.now()
     mqtt_client: Union[paho.mqtt.client, None]
     message_topics: [str] = []
+    input_history: list[(str, datetime)] = []
 
 
 class TextSession(Session):
@@ -24,4 +25,3 @@ class TextSession(Session):
     reader: TelnetReaderUnicode = None
     writer: TelnetWriterUnicode = None
     ren: TextGraphicsRenderer = None
-    input_history: list[(str, datetime)] = []

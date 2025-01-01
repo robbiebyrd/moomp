@@ -5,12 +5,23 @@ from models.room import Room
 from services.room import RoomService
 from utils.db import connect_db
 
+connect_db()
+
 
 class CharacterService:
 
     def __init__(self, character: Character):
         self._character = character
-        self._connection = connect_db()
+
+    def context(self):
+        return (
+            self._character,
+            self._character.inventory,
+            self._character.room,
+            Character.objects(room=self._character.room, online=True),
+            self._character.account,
+            RoomService.exits(self._character.room.id),
+        )
 
     @staticmethod
     def get_by_id(user_id: str) -> Character:
@@ -82,7 +93,7 @@ class CharacterService:
         character.room = entering_room
         character.save()
 
-        cls.notify_move(session, exiting_room, ["TeleportedIn", "TeleportedOut"])
+        cls.notify_move(session, exiting_room, ["Entered", "Exited"])
 
     @classmethod
     def warp(cls, session, room_cid: str):

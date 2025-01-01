@@ -55,50 +55,114 @@ def create_event(document, document_operation, operator=None):
     )
 
 
-def unpack_topic(pattern, topic):
+def unpack_topic(pattern: str, topic: str) -> list[str]:
+    """Parses and validates MQTT topic patterns with wildcard support.
+
+    This function matches an MQTT topic against a pattern, extracting and validating topic components using single-level
+    (+) and multi-level (#) wildcards.
+
+    Args:
+        pattern (str): The MQTT topic pattern to match against, which may include '+' or '#' wildcards.
+        topic (str): The specific MQTT topic to be parsed and matched.
+
+    Returns:
+        list (str): A list of extracted topic components that match the pattern.
+
+    Raises:
+        ValueError: If the pattern is invalid or cannot match the topic, with specific error messages for different
+        validation scenarios.
+
+    Examples:
+        >>> unpack_topic('/123/Character/+/+/Room/+', '/123/Character/456/TeleportedIn/Room/789')
+        ['456', 'TeleportedIn', '789']
+        >>> unpack_topic('/123/Room/#', '/123/Room/789/TeleportedIn/Character/456')
+        ['789', 'TeleportedIn', 'Character', '456']
+
+    Attribution:
+        Inspired by decorated-paho-mqtt
+        https://github.com/phi1010/decorated-paho-mqtt
+
+        Copyright 2021 Phillip Kuhrt
+
+        Redistribution and use in source and binary forms, with or without modification, are permitted provided that the
+        following conditions are met:
+
+        1. Redistributions of source code must retain the above copyright notice, this list of conditions and the
+        following disclaimer.
+
+        2. Redistributions in binary form must reproduce the above copyright notice, this list of conditions and the
+        following disclaimer in the documentation and/or other materials provided with the distribution.
+
+        3. Neither the name of the copyright holder nor the names of its contributors may be used to endorse or promote
+        products derived from this software without specific prior written permission.
+
+        THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND ANY EXPRESS OR IMPLIED
+        WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A
+        PARTICULAR PURPOSE ARE DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT HOLDER OR CONTRIBUTORS BE LIABLE FOR
+        ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT LIMITED
+        TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION)
+        HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING
+        NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY
+        OF SUCH DAMAGE.
+
+    """
     pattern_parts = pattern.split("/")
     topic_parts = topic.split("/")
 
-    pattern_iter = iter(pattern_parts)
-    topic_iter = iter(topic_parts)
+    if "#" in pattern_parts and pattern_parts.index("#") != len(pattern_parts) - 1:
+        raise ValueError("Multi-level wildcard '#' must be the last component")
 
-    for pattern_part in pattern_iter:
+    if len(pattern_parts) > len(topic_parts) and "#" not in pattern_parts:
+        raise ValueError("Topic lacks components to match the pattern")
+
+    result = []
+
+    for pattern_part, topic_part in zip(pattern_parts, topic_parts):
         if pattern_part == "#":
-            yield list(topic_iter)
-            if next(pattern_iter, None) is not None:
-                raise ValueError(
-                    "The pattern has a component after a #: {!r}".format(pattern_part)
-                )
-            return
-
-        try:
-            topic_part = next(topic_iter)
-        except StopIteration as e:
-            raise ValueError(
-                "The topic lacks a component to match a non-#-component in the pattern."
-            ) from e
-
+            result.extend(topic_parts[len(result) :])
+            break
         if pattern_part == "+":
-            yield topic_part
-        elif "+" in pattern_part:
-            raise ValueError(
-                "The single-level wildcard can be used at any level in the Topic Filter, including first and "
-                "last levels. Where it is used, it MUST occupy an entire level of the filter."
-            )
-        elif "#" in pattern_part:
-            raise ValueError(
-                "The multi-level wildcard character MUST be specified either on its own or following a topic "
-                "level separator. In either case it MUST be the last character specified in the Topic Filter."
-            )
+            result.append(topic_part)
         elif pattern_part != topic_part:
             raise ValueError(
-                "The pattern {!r} is no wildcard, and the topic {!r} differs.".format(
-                    pattern_part, topic_part
-                )
+                f"Pattern {pattern_part!r} does not match topic {topic_part!r}"
             )
 
-    if next(topic_iter, None) is not None:
+    if len(pattern_parts) < len(topic_parts) and "#" not in pattern_parts:
         raise ValueError(
-            "The topic to be matched is longer than the pattern without an # suffix. "
-            "The first unmatched part is {!r}".format(next(topic_iter))
+            f"Topic is longer than pattern. Unmatched part: {topic_parts[len(pattern_parts)]!r}"
         )
+
+    return result
+
+
+def mqtt_match(topic, wildcard) -> bool:
+    """
+    Check if an MQTT topic matches a wildcard pattern.
+
+    Args:
+        topic (str): The MQTT topic string.
+        wildcard (str): The MQTT wildcard pattern.
+
+    Returns:
+        bool: True if the topic matches the wildcard, False otherwise.
+    """
+
+    if topic == wildcard:
+        return True
+
+    topic_parts = topic.split("/")
+    wildcard_parts = wildcard.split("/")
+
+    if "#" not in wildcard_parts and len(topic_parts) != len(wildcard_parts):
+        return False
+
+    for i in range(len(topic_parts)):
+        if wildcard_parts[i] == "+":
+            continue
+        elif wildcard_parts[i] == "#":
+            return True
+        elif topic_parts[i] != wildcard_parts[i]:
+            return False
+
+    return True

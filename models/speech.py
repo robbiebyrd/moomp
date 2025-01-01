@@ -4,12 +4,11 @@ from mongoengine import (
     Document,
     ReferenceField,
     StringField,
-    DictField,
     SequenceField,
     ListField,
     DateTimeField,
 )
-from pydantic import BaseModel, Field
+from pydantic import BaseModel
 
 
 class Speech(Document):
@@ -30,8 +29,6 @@ class Speech(Document):
     # The rooms where the message can be heard.
     rooms = ListField(ReferenceField("Room", db_field="_roomIds"), required=False)
 
-    properties = DictField()
-
 
 class SpeechCreateDTO(BaseModel):
     speaker: str
@@ -39,4 +36,4 @@ class SpeechCreateDTO(BaseModel):
     created_at: datetime | None = None
     listeners: list[str] | None = None
     rooms: list[str] | None = None
-    properties: dict | None = Field(default={})
+    prefix: list[str] | None = None
