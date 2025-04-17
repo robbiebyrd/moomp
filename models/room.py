@@ -27,6 +27,16 @@ class Room(Document):
 
     properties = DictField()
 
+    @property
+    def merged_props(self):
+        values, current, results = [], self, {}
+        while current:
+            values.append(current.properties)
+            current = current.parent
+        values.reverse()
+        for d in values:
+            results |= d
+        return results
 
 class RoomCreateDTO(BaseModel):
     """

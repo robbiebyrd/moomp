@@ -11,8 +11,6 @@ from mongoengine import (
 )
 from pydantic import BaseModel, ValidationError, Field
 
-common_properties = {"locked": bool}
-
 
 class Object(Document):
     meta = {"collection": "objects"}
@@ -34,6 +32,19 @@ class Object(Document):
     room = ReferenceField("Room", db_field="_roomId")
 
     properties = DictField()
+
+    @property
+    def merged_props(self):
+        values = []
+        current = self
+        while current:
+            values.append(current.properties)
+            current = current.parent
+        results = {}
+        values.reverse()
+        for d in values:
+            results |= d
+        return results
 
     def clean(self):
         if self.holder is not None and self.room is not None:

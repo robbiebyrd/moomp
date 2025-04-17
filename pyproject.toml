@@ -36,6 +36,7 @@ build-backend = "poetry.core.masonry.api"
 MONGODB_NAME = "moomp"
 
 [project]
+name = "moomp"
 description = "MOOMP Multi-User Dungeon, Object Oriented w/ Mongo and Pyhton"
 authors = [
     { name = "Robbie Byrd", email = "me@robbiebyrd.com" },

@@ -46,14 +46,10 @@ class ScriptConsumer(BaseConsumer):
     @classmethod
     def get_principal_from_topic(cls, topic: str) -> (str, str):
         obj_type, obj_id = topic.split("/")[2:4]
-
-        type_list_index = ScriptTypesList.index(obj_type)
-        return SCRIPT_OBJECT_TYPES[type_list_index].objects(id=obj_id).first()
+        return SCRIPT_OBJECT_TYPES[ScriptTypesList.index(obj_type)].objects(id=obj_id).first()
 
     @classmethod
-    def on_message(
-        cls, mqtt: mqtt_client, session: TextSession, msg: mqtt_client.MQTTMessage
-    ):
+    def on_message(cls, mqtt: mqtt_client, session: TextSession, msg: mqtt_client.MQTTMessage):
         matching_scripts = cls.get_scripts_by_topic(session.instance.id, msg.topic)
         for script in matching_scripts:
             principal_obj = cls.get_principal_from_topic(msg.topic)

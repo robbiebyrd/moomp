@@ -9,6 +9,7 @@ from models.character import Character
 from models.instance import Instance
 from models.object import Object
 from models.portal import Portal
+from models.roles import Role
 from models.room import Room
 from models.script import Script
 from services.authn import AuthNService
@@ -36,6 +37,12 @@ class Seeder:
                 search_fields={"name": "name"},
                 hydrate_fields=[("instance", "parent")],
             ),
+            "role": ModelSettings(
+                item_type=Role,
+                named_field="name",
+                search_fields={"name": "name"},
+                hydrate_fields=[("role", "parent")],
+            ),
             "account": ModelSettings(
                 item_type=Account,
                 named_field="email",
@@ -46,7 +53,7 @@ class Seeder:
                 item_type=Character,
                 named_field="name",
                 search_fields={"name": "name"},
-                hydrate_fields=[("account", "account")],
+                hydrate_fields=[("account", "account"), ("role", "role")],
             ),
             "room": ModelSettings(
                 item_type=Room,

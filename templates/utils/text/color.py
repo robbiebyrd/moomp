@@ -1,4 +1,5 @@
 import contextlib
+from enum import StrEnum
 
 from pydantic_extra_types.color import Color
 
@@ -10,6 +11,11 @@ from utils.color import (
     ColorEncodingTypes,
     color_kind,
 )
+
+
+class ColorType(StrEnum):
+    BACKGROUND = "bg"
+    FOREGROUND = "fg"
 
 
 class ColorTextRenderer(StyleTextRenderer):

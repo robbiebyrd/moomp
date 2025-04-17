@@ -12,9 +12,7 @@ class BaseConsumer(ABC):
 
     @classmethod
     @abstractmethod
-    def on_message(
-        cls, mqtt: mqtt_client, session: Session, msg: mqtt_client.MQTTMessage
-    ) -> str | None:
+    def on_message(cls, mqtt: mqtt_client, session: Session, msg: mqtt_client.MQTTMessage) -> str | None:
         pass
 
     @classmethod

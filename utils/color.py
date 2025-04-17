@@ -1,6 +1,12 @@
 import math
-from enum import StrEnum, Enum
+from enum import Enum
 from math import ceil
+
+
+class ColorEncodingTypes(Enum):
+    RGB = 1
+    HEX = 2
+    NAME = 3
 
 
 def find_closest_hex_color(hex_color: str, hex_colors: list[str]) -> str:
@@ -102,17 +108,6 @@ def rgb_color_to_hex(r, g, b):
     """
 
     return "#{:02x}{:02x}{:02x}".format(r, g, b)
-
-
-class ColorType(StrEnum):
-    BACKGROUND = "bg"
-    FOREGROUND = "fg"
-
-
-class ColorEncodingTypes(Enum):
-    RGB = 1
-    HEX = 2
-    NAME = 3
 
 
 def color_kind(color):
