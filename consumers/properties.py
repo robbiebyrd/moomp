@@ -26,7 +26,10 @@ class PropertiesConsumer(BaseConsumer):
             case "Update":
                 if type_list_index := ScriptTypesList.index(obj_type):
                     obj = SOT[type_list_index].objects(id=obj_id).first()
-                    obj.properties.update({**obj.properties, **json.loads(msg.payload)})
+                    if "properties" in obj:
+                        obj.properties.update({**obj.properties, **json.loads(msg.payload)})
+                    else:
+                        obj["properties"] = json.loads(msg.payload)
                     obj.save()
 
                     notify_and_create_event(

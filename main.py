@@ -1,5 +1,4 @@
 import argparse
-import asyncio
 
 from entrypoints.mqtt import MQTTConsumer
 from entrypoints.seed import Seeder
@@ -32,10 +31,10 @@ def main():
         case "clean":
             clean()
         case "telnet":
+            print("Starting Up MQTT")
             MQTTConsumer(args.instance).serve()
-            loop = asyncio.new_event_loop()
-            loop.create_task(TelnetServer(args.instance).serve())
-            loop.run_forever()
+            print("Starting Up Telnet Server")
+            TelnetServer(args.instance).serve()
         case _:
             return
 

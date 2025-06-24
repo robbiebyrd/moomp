@@ -24,21 +24,21 @@ class ColorTextRenderer(StyleTextRenderer):
     color_groups: dict[str, dict[str, list[str]]]
 
     def __init__(
-        self,
-        config_file=None,
-        escape_code_prefixes=None,
-        escape_code_colors=None,
-        escape_code_styles=None,
-        color_theme: str = None,
-        color_groups=None,
+            self,
+            config_file=None,
+            escape_code_prefixes=None,
+            escape_code_colors=None,
+            escape_code_styles=None,
+            color_theme: str = None,
+            color_groups=None,
     ):
         super().__init__(config_file)
 
         self.escape_code_prefixes = (
-            escape_code_prefixes or self.config.escape_codes.prefixes
+                escape_code_prefixes or self.config.escape_codes.prefixes
         )
         self.escape_code_colors = (
-            escape_code_colors or self.config.escape_codes.colors["256"]
+                escape_code_colors or self.config.escape_codes.colors["256"]
         )
         self.escape_code_styles = escape_code_styles or self.config.escape_codes.styles
         self.color_theme = self.config.themes[color_theme or "default"]
