@@ -104,6 +104,31 @@ class RoomService:
         return portal
 
     @classmethod
+    def rename(cls, room_id: str, new_room_name: str) -> Room | None:
+        rooms = Room.objects(name=new_room_name).all()
+        if len(rooms) != 0:
+            return None
+
+        room = Room.objects(id=room_id).first()
+        room.name = new_room_name
+        room.save()
+        return room
+
+    @classmethod
+    def describe(cls, room_id: str, new_description: str) -> Room:
+        room = Room.objects(id=room_id).first()
+        room.description = new_description
+        room.save()
+        return room
+
+    @classmethod
+    def hide(cls, room_id: str, to_hide: bool) -> Room:
+        room = Room.objects(id=room_id).first()
+        room.visible = to_hide
+        room.save()
+        return room
+
+    @classmethod
     def exits_and_aliases(
         cls,
         room_id: str,

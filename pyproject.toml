@@ -22,6 +22,10 @@ pydantic-extra-types = "^2.9.0"
 cheetah3 = "^3.2.6.post1"
 email-validator = "^2.2.0"
 black = "^24.10.0"
+langchain = "^0.3.23"
+langchain-openai = "^0.3.14"
+langchain-ollama = "^0.3.2"
+ollama = "^0.4.8"
 
 [tool.poetry.group.dev.dependencies]
 prettier = "^0.0.7"
@@ -36,6 +40,7 @@ build-backend = "poetry.core.masonry.api"
 MONGODB_NAME = "moomp"
 
 [project]
+name = "moomp"
 description = "MOOMP Multi-User Dungeon, Object Oriented w/ Mongo and Pyhton"
 authors = [
     { name = "Robbie Byrd", email = "me@robbiebyrd.com" },
@@ -43,7 +48,7 @@ authors = [
 maintainers = [
     { name = "Robbie Byrd", email = "me@robbiebyrd.com" },
 ]
-readme = { file = "README.txt", content-type = "text/markdown" }
+readme = { file = "README.md", content-type = "text/markdown" }
 license = { file = "LICENSE" }
 classifiers = [
     "Development Status :: 3 - Alpha",

@@ -59,10 +59,21 @@ class CharacterService:
 
     @classmethod
     def rename(cls, character_id: str, new_username: str):
+        characters = Character.objects(name=new_username).all()
+        if len(characters) != 0:
+            return None
+
         character = Character.objects(id=character_id).first()
         character.name = new_username
         character.save()
         notify(character.account.instance.id, "Character", character, "Renamed")
+        return character
+
+    @classmethod
+    def rename_display(cls, character_id: str, new_display_name: str):
+        character = Character.objects(id=character_id).first()
+        character.display = new_display_name
+        character.save()
         return character
 
     def update(self, user: CharacterUpdateDTO):

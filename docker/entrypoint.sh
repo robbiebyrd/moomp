@@ -1,2 +1,3 @@
-python3 main.py seed --seed_file ./seeds/1.json
-python3 main.py telnet Hereville
+#!/bin/bash
+poetry run python main.py seed --seed_file ./seeds/1.json
+poetry run python main.py telnet Hereville

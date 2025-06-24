@@ -13,6 +13,7 @@ from pydantic import BaseModel
 
 from models.account import Account
 from models.object import Object
+from models.roles import Role
 from models.room import Room
 
 
@@ -31,6 +32,7 @@ class Character(Document):
     name = StringField(required=True, regex="^[a-zA-Z0-9]{1,100}$", unique=True)
     display = StringField(required=True)
     description = StringField()
+    role = ReferenceField(Role)
 
     online = BooleanField(default=False)
     visible = BooleanField(default=False)

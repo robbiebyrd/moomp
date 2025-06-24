@@ -1,4 +1,24 @@
 {
+  "roles": [
+    {
+      "name": "Programmer",
+      "description": "Programmer access",
+      "shortname": "programmer",
+      "parent": ""
+    },
+    {
+      "name": "Manager",
+      "description": "Manager access",
+      "shortname": "manager",
+      "parent": ""
+    },
+    {
+      "name": "Admin",
+      "description": "Administrator access",
+      "shortname": "admin",
+      "parent": ""
+    }
+  ],
   "accounts": [
     {
       "email": "wizard@yourhost.com",
@@ -16,7 +36,8 @@
       "account": "wizard@yourhost.com",
       "display": "The Wizard",
       "name": "Wizard",
-      "visible": 1
+      "visible": 1,
+      "role": "Admin"
     },
     {
       "account": "wizard@yourhost.com",

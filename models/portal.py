@@ -30,9 +30,7 @@ class Portal(Document):
     owner = ReferenceField(Character, required=True, db_field="_ownerId")
 
     from_room = ReferenceField(Room, required=True, db_field="_fromId")
-    to_room = ReferenceField(
-        Room, required=True, db_field="_toId"
-    )  # The Exit of the portal
+    to_room = ReferenceField(Room, required=True, db_field="_toId")
 
     name = StringField(required=True)
 
@@ -50,7 +48,7 @@ class Portal(Document):
 
 class PortalCreateDTO(BaseModel):
     """
-    A Data Transfer Object class for creatina a new Portal between Rooms.
+    A Data Transfer Object class for creating a new Portal between Rooms.
 
     Attributes:
         name (str): Name of the portal.

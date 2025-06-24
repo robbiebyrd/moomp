@@ -9,7 +9,7 @@ class CopyCommand(Command):
 
     @classmethod
     async def telnet(
-        cls, reader, writer, mqtt_client, command: str, session: "TextSession"
+            cls, reader, writer, mqtt_client, command: str, session: "TextSession"
     ):
 
         args = cls.parse_args(cls.get_arguments(command))

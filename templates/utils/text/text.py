@@ -1,5 +1,3 @@
-from __future__ import annotations
-
 import json
 import os
 
@@ -27,15 +25,15 @@ class BaseTextRenderer:
         )
         lr_config = self.config.text.line_rule
         if (
-            isinstance(lr_config, list)
-            and len(lr_config) == 2
-            and (isinstance(lr_config[0], str) and isinstance(lr_config[1], int))
+                isinstance(lr_config, list)
+                and len(lr_config) == 2
+                and (isinstance(lr_config[0], str) and isinstance(lr_config[1], int))
         ):
             self.lr = lr_config[0] * lr_config[1]
         elif (
-            isinstance(lr_config, list)
-            and len(lr_config) == 1
-            and isinstance(lr_config[0], str)
+                isinstance(lr_config, list)
+                and len(lr_config) == 1
+                and isinstance(lr_config[0], str)
         ):
             self.lr = lr_config[0] * self.col
         elif isinstance(lr_config, str):
@@ -59,3 +57,4 @@ class BaseTextRenderer:
     @staticmethod
     def enc(e):
         return bytes(e.encode("utf-8")).decode("unicode-escape")
+

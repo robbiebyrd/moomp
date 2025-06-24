@@ -1,6 +1,12 @@
 import math
-from enum import StrEnum, Enum
+from enum import Enum
 from math import ceil
+
+
+class ColorEncodingTypes(Enum):
+    RGB = 1
+    HEX = 2
+    NAME = 3
 
 
 def find_closest_hex_color(hex_color: str, hex_colors: list[str]) -> str:
@@ -103,28 +109,20 @@ def rgb_color_to_hex(r, g, b):
 
     return "#{:02x}{:02x}{:02x}".format(r, g, b)
 
-
-class ColorType(StrEnum):
-    BACKGROUND = "bg"
-    FOREGROUND = "fg"
-
-
-class ColorEncodingTypes(Enum):
-    RGB = 1
-    HEX = 2
-    NAME = 3
-
-
 def color_kind(color):
     if isinstance(color, list | tuple) and len(list(color)) == 3:
         return ColorEncodingTypes.RGB
-    elif isinstance(color, str) and color.startswith("#") and 3 <= len(color[1:]) <= 6:
+    elif (
+            isinstance(color, str)
+            and color.startswith("#")
+            and 3 <= len(color[1:]) <= 6
+            and all(c in "0123456789abcdefABCDEF" for c in color[1:])
+    ):
         return ColorEncodingTypes.HEX
     elif isinstance(color, str):
         return ColorEncodingTypes.NAME
-    else:
-        return None
 
+    return None
 
 def get_colors_array(length: int, colors: list | None = None) -> list[str]:
     colors = [colors] if type(colors) is not list else colors

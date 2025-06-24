@@ -13,7 +13,7 @@ def migrate():
     migrations.__all__.sort()
 
     for module_path in migrations.__all__:
-        module = importlib.import_module("migrations." + module_path)
+        module = importlib.import_module(f"migrations.{module_path}")
         if hasattr(module, "run"):
             logging.info(
                 f"[{datetime.datetime.now(datetime.UTC)}] Migrating {module_path}"
