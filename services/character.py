@@ -59,7 +59,7 @@ class CharacterService:
 
     @classmethod
     def rename(cls, character_id: str, new_username: str):
-        characters = Room.objects(name=new_username).all()
+        characters = Character.objects(name=new_username).all()
         if len(characters) != 0:
             return None
 
