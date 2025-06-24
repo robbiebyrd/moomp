@@ -109,17 +109,20 @@ def rgb_color_to_hex(r, g, b):
 
     return "#{:02x}{:02x}{:02x}".format(r, g, b)
 
-
 def color_kind(color):
     if isinstance(color, list | tuple) and len(list(color)) == 3:
         return ColorEncodingTypes.RGB
-    elif isinstance(color, str) and color.startswith("#") and 3 <= len(color[1:]) <= 6:
+    elif (
+            isinstance(color, str)
+            and color.startswith("#")
+            and 3 <= len(color[1:]) <= 6
+            and all(c in "0123456789abcdefABCDEF" for c in color[1:])
+    ):
         return ColorEncodingTypes.HEX
     elif isinstance(color, str):
         return ColorEncodingTypes.NAME
-    else:
-        return None
 
+    return None
 
 def get_colors_array(length: int, colors: list | None = None) -> list[str]:
     colors = [colors] if type(colors) is not list else colors

@@ -44,7 +44,7 @@ class ScriptConsumer(BaseConsumer):
         ]
 
     @classmethod
-    def get_principal_from_topic(cls, topic: str) -> (str, str):
+    def get_principal_from_topic(cls, topic: str):
         obj_type, obj_id = topic.split("/")[2:4]
         return SCRIPT_OBJECT_TYPES[ScriptTypesList.index(obj_type)].objects(id=obj_id).first()
 
